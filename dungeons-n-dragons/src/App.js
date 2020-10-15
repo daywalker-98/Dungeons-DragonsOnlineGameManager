@@ -14,10 +14,10 @@ function App() {
   const [isDM, changeDM] = useState(true);
   const logo = "https://www.underconsideration.com/brandnew/archives/dungeons_and_dragons_40_ampersand_detail_black.jpg";
   useEffect(() => {
-    console.log(user);
-    console.log(isAuthenticated);
     if(user){
       logIn(user.name);
+    } else {
+      logIn("");
     }
   }, [isAuthenticated])
 
@@ -25,7 +25,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img className="top" src={logo} className="App-logo" alt="logo" />
+        <img className="App-logo top" src={logo}  alt="logo" />
         {isDM ? <RenderDungeon /> : <RenderPlayer />}
         {isAuthenticated ? <div><LogoutButton /> <p>{user.name}</p></div>: <LoginButton />}
       </header>
