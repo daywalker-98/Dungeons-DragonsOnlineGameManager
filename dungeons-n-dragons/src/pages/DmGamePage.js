@@ -2,7 +2,7 @@ import React, {useRef, useState} from "react";
 
 function RenderDungeon(){
      const [royalDecrees, setRoyalDecrees] = useState([]);
-     const [party, setParty] = useState(["tiffany","kurt","ass","assballs69","Heathcliff","ri'luaneth"]);
+     const [party, setParty] = useState(["tiffany","kurt","ass","assballs69","heathcliff","ri'luaneth"]);
      const [NPCs, setNPCs] = useState([{"name":"reginald","isHostile":false},{"name":"general_zod","isHostile":true}]);
      const [capIsSpecial, setCapSpecial] = useState([{"name":"ri'luaneth","cap":"Ri'Luaneth"}]);
      const decreeRef = useRef();
@@ -38,7 +38,7 @@ function RenderDungeon(){
      
      function submitDecree(e){
           e.preventDefault();
-          const orignalDecree = decreeRef.current.value.split();
+          const orignalDecree = decreeRef.current.value.split(" ");
           const decreeTemp = decreeRef.current.value.toLowerCase();
           const decreeArray = decreeTemp.split(" ");
           switch(decreeArray[0]){
@@ -387,11 +387,30 @@ function RenderDungeon(){
                                                   case"capitalisation":
                                                   case"capitalization.":
                                                   case"capitalisation.":
-                                                       setCapSpecial([...capIsSpecial,
-                                                            {
-                                                                 "name":decreeArray[0],
-                                                                 "cap":orignalDecree[0]
-                                                            }]);
+                                                       let index;
+                                                            for(let i = 0; i < capIsSpecial.length; i++){
+                                                                 if(capIsSpecial[i].name == decreeArray[0]){
+                                                                      index = i;
+                                                                 }
+                                                            }
+                                                       if(index){
+                                                            let value = `${capitalize(decreeArray[0])} has special capitalization. Were you attempting to remove a special capitalization scheme for ${capitalize(decreeArray[0])}?`;
+                                                            setRoyalDecrees([...royalDecrees,
+                                                                 {
+                                                                      "text":value
+                                                                 }]);
+                                                       } else {
+                                                            let value = `${capitalize(orignalDecree[0])}'s new capitalization scheme has been set.`;
+                                                            setRoyalDecrees([...royalDecrees,
+                                                                 {
+                                                                      "text":value
+                                                                 }]);
+                                                            setCapSpecial([...capIsSpecial,
+                                                                 {
+                                                                      "name":decreeArray[0],
+                                                                      "cap":orignalDecree[0]
+                                                                 }]);
+                                                       }
                                                        break;
                                                   default:
                                                   }
@@ -412,6 +431,11 @@ function RenderDungeon(){
                                                                  }
                                                                  if(index){
                                                                       capIsSpecial.splice(index);
+                                                                      let value = `${capitalize(decreeArray[0])} has not special capitalization.`;
+                                                                      setRoyalDecrees([...royalDecrees,
+                                                                           {
+                                                                                "text":value
+                                                                           }]);
                                                                  } else {
                                                                       let value = `${capitalize(decreeArray[0])} has not special capitalization. Were you attempting to set a special capitalization scheme for ${capitalize(decreeArray[0])}?`;
                                                                       setRoyalDecrees([...royalDecrees,
