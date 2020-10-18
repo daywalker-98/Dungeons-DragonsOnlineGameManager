@@ -28,13 +28,13 @@ function RenderDungeon(){
 
      function saveBook(){
           const Book = {party, NPCs, capIsSpecial, royalDecrees}
-          pushBook(Book);
+          // pushBook(Book);
      }
      
      function spellFailed(error){
-          const randomEvents = ["You've just turned a player into a toad.","Is... Is that a tiny rain cloud floating over your head...?","Oh.... Now your hair is on fire...","Are... Are you... Translucent...?"];
+          const randomEvents = ["You've just turned a player into a toad.","Is... Is that a tiny rain cloud floating over your head...?","Oh.... Now your hair is on fire...","Are... Are you... Translucent...?","Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaand now it's raining..."];
           const length = randomEvents.length;
-          const randomEvent = Math.round(Math.random()*length);
+          const randomEvent = Math.round(Math.random()*length)-1;
           const message = `You may need more practice. Please consult the spell book if you're having trouble.`;
           let errorMessage;
           if(error){
@@ -320,7 +320,6 @@ function RenderDungeon(){
                                              value += ` ${decreeArray[i]}`;
                                         }
                                         const checkForPunc = value.split("");
-                                        console.log(checkForPunc[checkForPunc.length-1]);
                                         if(checkForPunc[checkForPunc.length-1] != "." && checkForPunc[checkForPunc.length-1] != "!" && checkForPunc[checkForPunc.length-1] != "?" ){
                                              value+=".";
                                         }
@@ -339,17 +338,24 @@ function RenderDungeon(){
                     }
                     break;
                case"abucus":
+               case"abucus:":
                case"calculate":
+               case"calculate:":
                     var result;
                     var equation;
                     var firstNum;
-                    var calculus;
+                    let calculus;
                     var secNum;
                     if(decreeArray[1]){
-                         equation = decreeArray[1].split("");
+                         const findOperator = decreeArray[1].split("");
+                         for(let i = 0; i<findOperator.length; i++){
+                              if(isNaN(findOperator[i])){
+                                   calculus = findOperator[i];
+                              }
+                         }
+                         equation = decreeArray[1].split(calculus);
                          firstNum = parseInt(equation[0]);
-                         calculus = equation[1];
-                         secNum = parseInt(equation[2]);
+                         secNum = parseInt(equation[1]);
                     }
                     switch(calculus){
                          case"+":

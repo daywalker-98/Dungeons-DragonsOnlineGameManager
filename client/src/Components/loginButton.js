@@ -3,7 +3,7 @@ import {useAuth0} from "@auth0/auth0-react";
 
 const LoginButton = ()=>{
      const {loginWithRedirect} = useAuth0();
-     return <button onClick={()=>loginWithRedirect()} className="scroll" >Log in</button>;
+     return <button style={{height:71}} onClick={()=>loginWithRedirect()} className="scroll top" >Log in</button>;
 }
 
 export default LoginButton;
