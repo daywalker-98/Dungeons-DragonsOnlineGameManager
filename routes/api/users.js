@@ -1,13 +1,16 @@
 const router = require("express").Router();
 const usersController = require("../../controllers/usersController");
 
-router.route("/logIn/:id")
-     .get(usersController.findById());
+     // /api/users/logIn
+router.route("/logIn")
+     .get(usersController.findById);
 
-router.route("/new-user/:id")
-     .post(usersController.create());
+     // /api/users/new-user
+router.route("/new-user")
+     .put(usersController.create);
 
-router.route("/screen-name/:id")
-     .post(usersController.update({id:req.params.id}, req.body))
+     // /api/users/screen-name/:id
+router.route("/:id")
+     .put(usersController.update);
 
 module.exports = router;

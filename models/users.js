@@ -5,14 +5,12 @@ const Schema = mongoose.Schema;
 const usersSchema = new Schema({
      screenName: {
           type: String,
-          trim: true,
-          required: "Enter a screen name"
+          required: true
      },
      id:{
           type: String,
-          trim: true,
           unique: true,
-          required: "Enter your email"
+          required: true
      },
      date:{
           type: Date,

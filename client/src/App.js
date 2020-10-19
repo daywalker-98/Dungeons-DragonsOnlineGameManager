@@ -9,21 +9,35 @@ import Game from "./pages/game";
 import LoginButton from "./Components/loginButton";
 import LogoutButton from "./Components/logoutButton";
 import Header from "./Components/Header";
-import {getUser, newUser} from "./utils/api";
+import API from "./utils/api";
 
 function App() {
-  const {userId, isAuthenticated} = useAuth0();
+  const {user, isAuthenticated} = useAuth0();
+  const [account, setAccount] = useState([]);
   const [username, logIn] = useState("");
   const [isDM, changeDM] = useState(true);
   const logo = "https://www.underconsideration.com/brandnew/archives/dungeons_and_dragons_40_ampersand_detail_black.jpg";
-  var user;
   useEffect(() => {
-    if(userId){
-      user = getUser(userId.name);
-      if(user){
-        logIn(user.ScreenName);
-      } else {
-        newUser(userId.name);
+    if(user){
+      logIn(user.nickname);
+      API.getUser({
+        id: user.sub
+      }).then(result=>{
+        setAccount(result.data);
+      }).catch((err)=>{
+        console.log(err);
+      });
+
+      if(JSON.stringify(account) === "[]"){
+        const postObj = {
+          screenName: user.nickname,
+          id: user.sub
+        };
+        console.log(postObj);
+        API.newUser({postObj}).then(result=>{
+          setAccount(result);
+          console.log(`newUser .then working: ${account}`);
+        }).catch(err=>console.log(err));
       }
     } else {
       logIn("");
@@ -35,7 +49,8 @@ function App() {
     <div className="App table">
       <Header className="table">
         <img className="top" src={logo}  alt="logo" height={75}/>
-        {isAuthenticated ? <LogoutButton className="scroll" height={75}/>: <LoginButton className="scroll"/>}
+        {isAuthenticated ? <LogoutButton className="scroll" />: <LoginButton className="scroll"/>}
+        <p>{username}</p>
       </Header>
       {isAuthenticated ? <Game isDM={isDM} user={user} />: <p></p>}
     </div>

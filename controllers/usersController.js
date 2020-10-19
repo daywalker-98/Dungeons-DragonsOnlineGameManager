@@ -3,14 +3,14 @@ const db = require("../models");
 module.exports = {
      findAll: function(req, res){
           db.users
-               .find({})
-               .sort({date:-1})
-               .then(dbModel=>res.json(dbModel))
-               .catch(err=>res.status(422).json(err));
+          .find({})
+          .sort({date:-1})
+          .then(dbModel=>res.json(dbModel))
+          .catch(err=>res.status(422).json(err));
      },
      findById: function(req, res){
           db.users
-               .findById(req.params.id)
+               .findById(req.body.id)
                .then(dbModel=>res.json(dbModel))
                .catch(err=>res.status(422).json(err));
      },
@@ -35,16 +35,9 @@ module.exports = {
      },
      findAllCharacters: function(req, res){
           db.users
-               .find({_id: req.params.id})
+               .find({_id:req.params.id})
                .populate("characters")
                .then(dbModel=>res.json(dbModel))
                .catch(err=>{res.status(422).json(err)});
-     },
-     setScreenName: function(req, res){
-          db.users
-               .find({_id: req.params.id}, req.body)
-               .populate()
-               .then(dbModel=>res.json(dbModel))
-               .catch(err=>{res.stus(422).json(err)});
      }
 };

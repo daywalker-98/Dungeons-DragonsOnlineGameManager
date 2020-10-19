@@ -2,11 +2,11 @@ const router = require("express").Router();
 const usersController = require("../../controllers/usersController");
 const booksController = require("../../controllers/booksController");
 
-router.route("/chars/:id")
-     .get(usersController.findAllCharacters)
-     .delete(booksController.remove);
+// router.route("/chars/:id")
+//      .get(usersController.findAllCharacters)
+//      .delete(booksController.remove);
 
-router.route("/:userId")
-     .post(booksController.create({userId:req.params.userId}));
+// router.route("/:userId")
+//      .post(booksController.create);
 
-module.exports = router;
+// module.exports = router;

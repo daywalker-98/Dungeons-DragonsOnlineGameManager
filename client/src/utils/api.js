@@ -1,13 +1,15 @@
 import axios from "axios";
 
-export function newUser(userId){
-     return axios.post(`/api/users/new-user/${userId}`);
-}
+export default{
+     getUser: function(loginData){
+          return axios.get(`/api/users/logIn`, loginData);
+     },
 
-export function getUser(userId){
-     return axios.get(`/api/users/login/${userId}`);
-}
+     newUser: function(userData){
+          return axios.put(`/api/users/new-user`, userData);
+     },
 
-export function setScreenName(){
-     return axios.post();
+     setScreenName: function(screenName){
+          return axios.post(`/api/users/${screenName}`);
+     }
 }

@@ -254,7 +254,7 @@ function RenderDungeon(){
                          case"members:":
                               let value=`${capitalize(decreeArray[0])} ${decreeArray[1]} `;
                               for(let i = 0; i < party.length; i++){
-                                   if(i == party.length-1){
+                                   if(i === party.length-1){
                                         value+=` and ${capitalize(party[i])}.`
                                    } else {
                                         value+=`${capitalize(party[i])}, `;
@@ -278,12 +278,12 @@ function RenderDungeon(){
                          case"npcs:":
                               decreeArray[1] = `${decreeArray[1]} `;
                               let value=`${capitalize(decreeArray[1])}`;
-                              if(NPCs.length == 2){
+                              if(NPCs.length === 2){
                                    value+=`${capitalize(NPCs[0].name)} and ${capitalize(NPCs[1].name)}.`
                               } else{
                                    for(let i = -1; i < NPCs.length; i++){
                                         if(NPCs[i] != null){
-                                             if(i == NPCs.length-1){
+                                             if(i === NPCs.length-1){
                                                   value+=` and ${capitalize(NPCs[i].name)}.`
                                                   console.log(NPCs[i]);
                                              } else {
@@ -320,7 +320,7 @@ function RenderDungeon(){
                                              value += ` ${decreeArray[i]}`;
                                         }
                                         const checkForPunc = value.split("");
-                                        if(checkForPunc[checkForPunc.length-1] != "." && checkForPunc[checkForPunc.length-1] != "!" && checkForPunc[checkForPunc.length-1] != "?" ){
+                                        if(checkForPunc[checkForPunc.length-1] !== "." && checkForPunc[checkForPunc.length-1] !== "!" && checkForPunc[checkForPunc.length-1] !== "?" ){
                                              value+=".";
                                         }
                                         setRoyalDecrees([...royalDecrees,
@@ -450,7 +450,7 @@ function RenderDungeon(){
                                                   case"capitalisation.":
                                                        let index;
                                                             for(let i = 0; i < capIsSpecial.length; i++){
-                                                                 if(capIsSpecial[i].name == decreeArray[0]){
+                                                                 if(capIsSpecial[i].name === decreeArray[0]){
                                                                       index = i;
                                                                  }
                                                             }
@@ -486,7 +486,7 @@ function RenderDungeon(){
                                                             case"capitalisation.":
                                                                  let index;
                                                                  for(let i = 0; i < capIsSpecial.length; i++){
-                                                                      if(capIsSpecial[i].name == decreeArray[0]){
+                                                                      if(capIsSpecial[i].name === decreeArray[0]){
                                                                            index = i;
                                                                       }
                                                                  }
@@ -502,7 +502,8 @@ function RenderDungeon(){
                                                                       setRoyalDecrees([...royalDecrees,
                                                                            {
                                                                                 "text":value
-                                                                           }]);
+                                                                           }
+                                                                      ]);
                                                                  }
                                                                  break;
                                                             default:

@@ -14,20 +14,22 @@ app.use(express.json());
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost/DnDgameManager";
 
+
 mongoose.connect(uri, {
+     useCreateIndex: true,
      useNewUrlParser: true,
      useFindAndModify: false,
      useUnifiedTopology: true
 });
 
-mongoose.connection.on('error', ()=>{
-     console.log(`uri: ${uri}`);
-});
+// mongoose.connection.on('error', ()=>{
+//      console.log(`uri: ${uri}`);
+// });
 
 app.use(routes);
 
 app.get("*", (req, res)=>{
-     res.sendFile(path.join(__dirname, "./client/build/index/html"));
+     res.sendFile(path.join(__dirname, "./client/public/build/index.html"));
 });
 
 app.listen(PORT, ()=>{
