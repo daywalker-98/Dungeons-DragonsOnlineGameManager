@@ -13,15 +13,19 @@ export default{
           return axios.put(`/api/dnd/users/${userId}`, screenName);
      },
 
-     saveBook: function(book, userId){
-          return axios.put(`/api/dnd/books/:${userId}`, book);
+     saveBook: function(book){
+          return axios.post(`/api/dnd/books/save`, book);
      },
 
-     getBook: function(_id){
-          return axios.post(`/api/dnd/books/:${_id}`);
+     newBook: function(book){
+          return axios.put(`/api/dnd/books/save`, book);
      },
 
-     getBooks: function(){
-          return axios.post
+     getBook: function(title){
+          return axios.post(`/api/dnd/books/book:${title}`);
+     },
+
+     getBooks: function(id){
+          return axios.post(`/api/dnd/books-by-user/:${id}`);
      }
 }

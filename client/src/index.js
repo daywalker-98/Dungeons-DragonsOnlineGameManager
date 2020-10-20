@@ -10,11 +10,8 @@ ReactDOM.render(
     <Auth0Provider
       domain="dungeons-and-dragons.us.auth0.com"
       clientId="1jJeX74sLijeoVcDiPaRQD8wBEoGyIBr"
-      redirectUri={
-        window.location.origin
-        // process.env.redirectUri || `https://localhost:3000`
-      }
-      >
+      redirectUri={window.location.origin}
+    >
       <App />
     </Auth0Provider>
   </React.StrictMode>,

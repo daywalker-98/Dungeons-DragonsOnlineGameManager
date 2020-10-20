@@ -6,16 +6,12 @@ const booksSchema = new Schema({
      title:{
           type: String,
           trim: true,
+          unique: true,
           required: "Enter a book title."
      },
      id:{
-          type: String
-     },
-     id:{
-          type: Number,
-          trim: true,
-          unique: true,
-          default: Math.random()*99999999999
+          type: String,
+          required: true
      },
      decreeHistory:{
           type: Object,

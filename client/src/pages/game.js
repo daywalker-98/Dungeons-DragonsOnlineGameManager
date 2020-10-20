@@ -18,7 +18,7 @@ function Game(stfNthngs){
      return(
           <div >
                <div >
-                    {stfNthngs.isDM ? <RenderDungeon userId={stfNthngs.userId} userObj={stfNthngs.userObj}className="parchment"/> : <RenderPlayer className="parchment"/>}
+                    {stfNthngs.isDM ? <RenderDungeon userId={stfNthngs.userId}  userObj={stfNthngs.userObj}className="parchment"/> : <RenderPlayer className="parchment"/>}
                     <form onSubmit={changeScreenName}>
                          <label htmlFor="usernameupdate">Change screenname here:</label>
                          <input className="col-4 decree-box" name="usernameupdate" ref={screenNameBox} />

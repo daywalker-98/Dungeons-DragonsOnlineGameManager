@@ -26,13 +26,30 @@ function RenderDungeon(stfNthngs){
           return wordStore.join("_");
      }
 
-     // getBook(){
-     //      API.getBook();
+     // function loadBook(title){
+     //      API.getBook(title);
      // }
 
-     function saveBook(){
-          // const Book = {party, NPCs, capIsSpecial, royalDecrees}
-          // API.Book(Book, stfNthngs.user.sub);
+     function getBooks(){
+          API.getBooks(stfNthngs.userId).then(res=>{
+               console.log(res);
+          }).catch(err=>{
+               console.log(err);
+          });
+     }
+
+     function saveBook(title){
+          const Book = {id:stfNthngs.userId, title:title, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees};
+          API.saveBook(Book).then(res=>{
+               console.log(res);
+          }).catch(err=>{
+               console.log(err);
+               API.newBook(Book).then(res=>{
+                    console.log(res);
+               }).catch(err=>{
+                    console.log(err);
+               });
+          });
      }
      
      function spellFailed(error){
@@ -60,11 +77,29 @@ function RenderDungeon(stfNthngs){
           const decreeArray = decreeTemp.split(" ");
           switch(decreeArray[0]){
                case"save":
-                    if(decreeArray[1] === "game"){
-                         API.saveGame();
+                    let errorMessage = `To save the game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+                    if(decreeArray[1] === "game" || decreeArray[1] === "game"){
+                         if(decreeArray[2]){
+                              saveBook(decreeArray[2]);
+                         } else {
+                              spellFailed(errorMessage);
+                         }
                     } else {
+                         spellFailed(errorMessage);
                     }
                     break;
+               // case"load":
+               //      let errorMessage = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+               //      if(decreeArray[1] === "game" || decreeArray[1] === "game"){
+               //      if(decreeArray[2]){
+               //           loadBook(decreeArray[2]);
+               //      } else {
+               //           spellFailed(errorMessage);
+               //      }
+               // } else {
+               //      spellFailed(errorMessage);
+               // }
+               //      break;
                case"roll":
                     if(decreeArray[1]){
                          const dice = decreeArray[1].split("d");
@@ -116,7 +151,7 @@ function RenderDungeon(stfNthngs){
                                    "text": decreeRef.current.value,
                                    "value":value
                               }
-                         ])
+                         ]);
                     } else {
                          spellFailed(`Please recite the number of dice and the number of sides with the following incantation: "roll (# of dice)d(# of sides)". Do not use any spaces in between the numbers and the letter d.`);
                     }
@@ -280,6 +315,10 @@ function RenderDungeon(stfNthngs){
                     break;
                case"display":
                     switch(decreeArray[1]){
+                         case"games":
+                         case"games:":
+                              getBooks();
+                              break;
                          case"npc:":
                          case"npc":
                          case"npcs":
