@@ -23,22 +23,33 @@ function App() {
       API.getUser({
         id: user.sub
       }).then(result=>{
+        console.log(result);
         setAccount(result.data);
+        logIn(result.data[0].screenName);
+        console.log(result.data[0].screenName);
+        console.log(JSON.stringify(account));
+        if(JSON.stringify(result.data) === "[]"){
+          API.newUser({
+            screenName: user.nickname,
+            id: user.sub
+          }).then(result=>{
+            setAccount(result.data);
+            logIn(result.data.screenName);
+            console.log(`newUser .then working: ${account}`);
+          }).catch(err=>console.log(err));
+        }
       }).catch((err)=>{
         console.log(err);
-      });
-
-      if(JSON.stringify(account) === "[]"){
-        const postObj = {
+        API.newUser({
           screenName: user.nickname,
           id: user.sub
-        };
-        console.log(postObj);
-        API.newUser({postObj}).then(result=>{
-          setAccount(result);
+        }).then(result=>{
+          setAccount(result.data);
+          logIn(result.data.screenName);
           console.log(`newUser .then working: ${account}`);
         }).catch(err=>console.log(err));
-      }
+      });
+
     } else {
       logIn("");
     }
@@ -52,7 +63,7 @@ function App() {
         {isAuthenticated ? <LogoutButton className="scroll" />: <LoginButton className="scroll"/>}
         <p>{username}</p>
       </Header>
-      {isAuthenticated ? <Game isDM={isDM} user={user} />: <p></p>}
+      {isAuthenticated ? <Game isDM={isDM} userId={user.sub} user={user} />: <p></p>}
     </div>
   );
 }

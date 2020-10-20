@@ -1,16 +1,28 @@
 const router = require("express").Router();
 const usersController = require("../../controllers/usersController");
+const booksController = require("../../controllers/booksController");
 
-     // /api/users/logIn
-router.route("/logIn")
-     .get(usersController.findById);
+     // /api/dnd/users/logIn
+router.route("/users/logIn")
+     .post(usersController.findById);
 
-     // /api/users/new-user
-router.route("/new-user")
+     // /api/dnd/users/new-user
+router.route("/users/new-user")
      .put(usersController.create);
 
-     // /api/users/screen-name/:id
-router.route("/:id")
+     // /api/dnd/users/screen-name/:id
+router.route("/users/:id")
      .put(usersController.update);
+
+// router.route("/chars/:id")
+//      .get(usersController.findAllCharacters)
+//      .delete(booksController.remove);
+
+     // /api/dnd/books/:userId
+router.route("/books/:userId")
+.put(booksController.create);
+
+router.route("/books/")
+.put(booksController.update);
 
 module.exports = router;

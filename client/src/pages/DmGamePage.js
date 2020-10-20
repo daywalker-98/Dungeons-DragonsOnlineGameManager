@@ -1,16 +1,16 @@
 import React, {useRef, useState} from "react";
-import {pushBook} from "../utils/api";
+import API from "../utils/api";
 
-function RenderDungeon(){
+function RenderDungeon(stfNthngs){
      const [royalDecrees, setRoyalDecrees] = useState([]);
-     const [party, setParty] = useState(["tiffany","kurt","ass","assballs69","heathcliff","ri'luaneth"]);
+     const [party, setParty] = useState([{"name":"tiffany"},{"name":"kurt"},{"name":"ass"},{"name":"assballs69"},{"name":"heathcliff"},{"name":"ri'luaneth"}]);
      const [NPCs, setNPCs] = useState([{"name":"reginald","isHostile":false},{"name":"general_zod","isHostile":true}]);
      const [capIsSpecial, setCapSpecial] = useState([{"name":"ri'luaneth","cap":"Ri'Luaneth"}]);
      const decreeRef = useRef();
 
      function capitalize(word){
           for(let i = 0; i < capIsSpecial.length; i++){
-               if(capIsSpecial[i].name == word){
+               if(capIsSpecial[i].name === word){
                     return capIsSpecial[i].cap;
                }
           }
@@ -26,15 +26,19 @@ function RenderDungeon(){
           return wordStore.join("_");
      }
 
+     // getBook(){
+     //      API.getBook();
+     // }
+
      function saveBook(){
-          const Book = {party, NPCs, capIsSpecial, royalDecrees}
-          // pushBook(Book);
+          // const Book = {party, NPCs, capIsSpecial, royalDecrees}
+          // API.Book(Book, stfNthngs.user.sub);
      }
      
      function spellFailed(error){
           const randomEvents = ["You've just turned a player into a toad.","Is... Is that a tiny rain cloud floating over your head...?","Oh.... Now your hair is on fire...","Are... Are you... Translucent...?","Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaand now it's raining..."];
           const length = randomEvents.length;
-          const randomEvent = Math.round(Math.random()*length)-1;
+          const randomEvent = (Math.round(Math.random()*length)-1);
           const message = `You may need more practice. Please consult the spell book if you're having trouble.`;
           let errorMessage;
           if(error){
@@ -55,6 +59,12 @@ function RenderDungeon(){
           const decreeTemp = decreeRef.current.value.toLowerCase();
           const decreeArray = decreeTemp.split(" ");
           switch(decreeArray[0]){
+               case"save":
+                    if(decreeArray[1] === "game"){
+                         API.saveGame();
+                    } else {
+                    }
+                    break;
                case"roll":
                     if(decreeArray[1]){
                          const dice = decreeArray[1].split("d");
@@ -191,73 +201,71 @@ function RenderDungeon(){
                     }
                     break;
                case"remove":
-               switch(decreeArray[1]){
-                    case"player":
-                         switch(decreeArray[2]){
-                              case"character":
-                              case"character:":
-                                   const exitPlayer = decreeArray[3];
-                                   if(party.includes(exitPlayer)){
-                                        const index = party.indexOf(party);
-                                        party.splice(index, 1);
-                                        const value = `${capitalize(exitPlayer)} has left the party.`;
-                                        setRoyalDecrees([...royalDecrees,
-                                             {
-                                                  "text":value
-                                             }
-                                        ]);
-                                   } else {
-                                        const value = `${capitalize(exitPlayer)} is not a member of the party`;
-                                        setRoyalDecrees([...royalDecrees,
-                                             {
-                                                  "text":value
-                                             }
-                                        ]);
+                    switch(decreeArray[1]){
+                         case"player":
+                              switch(decreeArray[2]){
+                                   case"character":
+                                   case"character:":
+                                        const exitPlayer = decreeArray[3];
+                                        if(party.includes(exitPlayer)){
+                                             const index = party.indexOf(party);
+                                             party.splice(index, 1);
+                                             const value = `${capitalize(exitPlayer)} has left the party.`;
+                                             setRoyalDecrees([...royalDecrees,
+                                                  {
+                                                       "text":value
+                                                  }
+                                             ]);
+                                        } else {
+                                             const value = `${capitalize(exitPlayer)} is not a member of the party`;
+                                             setRoyalDecrees([...royalDecrees,
+                                                  {
+                                                       "text":value
+                                                  }
+                                             ]);
+                                        }
+                                        break;
+                                   default:
+                                        spellFailed();
+                              }
+                              break;
+                         case"npc":
+                         case"npc:":
+                              let newNPC = decreeArray[2];
+                              if(NPCs.includes(newNPC)){
+                                   const value = `${capitalize(newNPC)} is already a member of a non player character.`;
+                                   setRoyalDecrees([...royalDecrees,
+                                        {
+                                             "text":value
+                                        }
+                                   ]);
+                              }
+                              const value = `New npc: ${newNPC}`;
+                              setNPCs([...NPCs,
+                                   {
+                                        "name":capitalize(newNPC)
                                    }
-                                   break;
-                              default:
-                                   spellFailed();
-                         }
-                         break;
-                    case"npc":
-                         decreeArray[1] = `${decreeArray[1]}:`
-                    case"npc:":
-                         const newNPC = decreeArray[3];
-                         if(NPCs.includes(newNPC)){
-                              const value = `${capitalize(newNPC)} is already a member of a non player character.`;
+                              ]);
                               setRoyalDecrees([...royalDecrees,
                                    {
                                         "text":value
                                    }
                               ]);
-                         }
-                         const value = `New npc: ${newNPC}`;
-                         setNPCs([...NPCs,
-                              {
-                                   "name":capitalize(newNPC)
-                              }
-                         ]);
-                         setRoyalDecrees([...royalDecrees,
-                              {
-                                   "text":value
-                              }
-                         ]);
-                         break;
-                    default:
-                         spellFailed();
+                              break;
+                         default:
+                              spellFailed();
                     }
                     break;
                case"party":
                     switch(decreeArray[1]){
                          case"members":
-                              decreeArray[1] = `members:`;
                          case"members:":
-                              let value=`${capitalize(decreeArray[0])} ${decreeArray[1]} `;
+                              let value=`Party members: `;
                               for(let i = 0; i < party.length; i++){
                                    if(i === party.length-1){
-                                        value+=` and ${capitalize(party[i])}.`
+                                        value+=` and ${capitalize(party[i].name)}.`
                                    } else {
-                                        value+=`${capitalize(party[i])}, `;
+                                        value+=`${capitalize(party[i].name)}, `;
                                    }
                               }
                               setRoyalDecrees([...royalDecrees,
@@ -303,8 +311,8 @@ function RenderDungeon(){
                                    case"text":
                                    case"text:":
                                         let value="Flavor: ";
+                                        decreeArray[3] = capitalize(decreeArray[3]);
                                         for(let i = 3; i < decreeArray.length; i++){
-                                             decreeArray[3] = capitalize(decreeArray[3]);
                                              for(let j = 0; j < party.length; j++){
                                                   switch(decreeArray[i]){
                                                        case party[j]:
@@ -428,9 +436,109 @@ function RenderDungeon(){
                          }]);
                     }
                     break;
+               case"set":
+                    let value = decreeArray[3];
+                    let dataType;
+                    switch(decreeArray[1]){
+                         case"health":
+                         case"hp":
+                              dataType = "health";
+                              break;
+                         case"str":
+                         case"strength":
+                              dataType = "strength";
+                              break;
+                         case"dex":
+                         case"dexterity":
+                              dataType = "dexterity";
+                              break;
+                         case"con":
+                         case"constitution":
+                              dataType = "constitution";
+                              break;
+                         case"int":
+                         case"intelligence":
+                              dataType = "intelligence";
+                              break;
+                         case"wis":
+                         case"wisdom":
+                              dataType = "wisdom";
+                              break;
+                         case"cha":
+                         case"charisma":
+                              dataType = "charisma";
+                              break;
+                         default:
+                              spellFailed("The options for set are hp (health), str (strength), dex (dexterity), con (constitution), int (intelligence), wis (wisdom), and cha (charisma)");
+                    }
+                    if(value){
+                         let char;
+                         let index = 0;
+                         for(let i = index; i < party.length; i++){
+                              if(decreeArray[2] == party[i].name){
+                                   console.log(party[i]);
+                                   char = decreeArray[2];
+                                   index = i;
+                              }
+                         }
+                         if(char){
+                              switch(dataType){
+                                   case"health":
+                                        party[index].health = value;
+                                        break;
+                                   case"strength":
+                                        party[index].str = value;
+                                        break;
+                                   case"dexterity":
+                                        party[index].dex = value;
+                                        break;
+                                   case"intelligence":
+                                        party[index].int = value;
+                                        break;
+                                   case"wisdon":
+                                        party[index].wis = value;
+                                        break;
+                                   case"charisma":
+                                        party[index].cha = value;
+                                        break;
+                                   default:
+                              }
+                              setRoyalDecrees([...royalDecrees,
+                                   {
+                                        "text": `${capitalize(char)} ${dataType}: ${value}`
+                                   }]);
+                         } else {
+                              spellFailed(`Please enter a character name next time. ${capitalize(decreeArray[2])} is not a current party member. If you would like to add them, simply type "add party member: ${capitalize(decreeArray[2])}. `);
+                         }
+                    } else {
+                         spellFailed(`This spell won't work unless you enter a value. `);
+                    }
+                    break;
                default:
-                    if(party.includes(decreeArray[0])){
+                    let char;
+                    let index;
+                    for(let i = 0; i < party.length; i++){
+                         if(decreeArray[0] == party[i].name){
+                              char = true;
+                              index = i;
+                         }
+                    }
+                    if(char){
                          switch(decreeArray[1]){
+                              case"stats":
+                              case"stats:":
+                                   let text = [{text:`${capitalize(decreeArray[0])} stats:`}];
+                                   text = [...text, {text : `-Health: ${party[index].health}`}];
+                                   text = [...text, {text : `-STR: ${party[index].str}`}];
+                                   text = [...text, {text : `-DEX: ${party[index].dex}`}];
+                                   text = [...text, {text : `-CON: ${party[index].con}`}];
+                                   text = [...text, {text : `-INT: ${party[index].int}`}];
+                                   text = [...text, {text : `-WIS: ${party[index].wis}`}];
+                                   text = [...text, {text : `-CHA: ${party[index].cha}`}];
+                                   setRoyalDecrees([...royalDecrees,
+                                        ...text
+                                   ]);
+                                   break;
                               case"is":
                                    switch(decreeArray[2]){
                                         case"poisoned":
@@ -449,13 +557,13 @@ function RenderDungeon(){
                                                   case"capitalization.":
                                                   case"capitalisation.":
                                                        let index;
-                                                            for(let i = 0; i < capIsSpecial.length; i++){
-                                                                 if(capIsSpecial[i].name === decreeArray[0]){
-                                                                      index = i;
-                                                                 }
+                                                       for(let i = 0; i < capIsSpecial.length; i++){
+                                                            if(capIsSpecial[i].name === decreeArray[0]){
+                                                                 index = i;
                                                             }
+                                                       }
                                                        if(index){
-                                                            let value = `${capitalize(decreeArray[0])} has special capitalization. Were you attempting to remove a special capitalization scheme for ${capitalize(decreeArray[0])}?`;
+                                                            let value = `${capitalize(decreeArray[0])} already has special capitalization. Were you attempting to remove a special capitalization scheme for ${capitalize(decreeArray[0])}?`;
                                                             setRoyalDecrees([...royalDecrees,
                                                                  {
                                                                       "text":value
@@ -534,7 +642,7 @@ function RenderDungeon(){
                <div className="scroll-container table">
                     <h1 className="scroll-heading">Decree Scroll</h1>
                     <div className="decree-scroll">
-                         {royalDecrees.map((decree, index)=>{
+                         {royalDecrees ? royalDecrees.map((decree, index)=>{
                          if(index >= royalDecrees.length-30)
                               return(
                                    <div key={index}>
@@ -549,7 +657,7 @@ function RenderDungeon(){
                                    </div>
                               )
                               else return null;
-                         })}
+                         }): <div></div>}
                     </div>
                     <form onSubmit={submitDecree}>
                          <input className="col-12 decree-box" name="DecreeBox" ref={decreeRef} />
