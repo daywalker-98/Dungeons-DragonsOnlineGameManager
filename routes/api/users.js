@@ -27,6 +27,6 @@ router.route("/books/book/:userId")
      .post(booksController.findById);
 
 router.route("/books-by-user/:id")
-     .post(booksController.findAll);
+     .get(booksController.findAll);
 
 module.exports = router;

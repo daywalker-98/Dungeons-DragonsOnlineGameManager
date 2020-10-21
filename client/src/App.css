@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .table{
@@ -31,6 +32,7 @@
 body {
   overflow-x: hidden;
 }
+
 /*Just removing default browser padding/margin*/
 html,
 body {
@@ -42,12 +44,11 @@ body {
 .independent-scroll,
 .decree-scroll{
   overflow: auto;
-  height: auto;
   padding: .5rem;
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
   overflow-y: scroll;
-  height: 400px;
+  height: 52vh;
 }
 
 .text-alighn-left {
@@ -73,7 +74,7 @@ body {
   font-size: 3rem;
   position: relative;
   z-index: 10;
-  height: 100px;
+  height: 80px;
 }
 
 .scroll{
@@ -82,11 +83,9 @@ body {
 
 .scroll-container {
   background-color: bisque;
-}
-
-.scroll-container{
   position: absolute;
   right: 5px;
-  width: 300px;
+  width: 45vw;
   padding: 10px;
+  height: 66vh;
 }

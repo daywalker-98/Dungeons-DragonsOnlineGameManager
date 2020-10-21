@@ -2,6 +2,7 @@ const db = require("../models");
 
 module.exports = {
      findAll: function(req, res){
+          console.log(req.params.id);
           db.books
                .find({id:req.params.id})
                .sort({date:-1})
@@ -28,6 +29,8 @@ module.exports = {
                });
      },
      update: function(req, res){
+          console.log(res.params);
+          console.log(req.body);
           db.books
                .findOneAndUpdate({_id: req.params.id}, req.body)
                .then(dbModel=>res.json(dbModel))

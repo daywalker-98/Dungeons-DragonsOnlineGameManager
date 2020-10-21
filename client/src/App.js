@@ -12,6 +12,7 @@ import Header from "./Components/Header";
 import API from "./utils/api";
 
 function App() {
+  const screenNameBox = useRef();
   const {user, isAuthenticated} = useAuth0();
   const [account, setAccount] = useState([]);
   const [username, logIn] = useState("");
@@ -55,15 +56,31 @@ function App() {
     }
   }, [isAuthenticated])
 
+  function changeScreenName(e){
+    e.preventDefault();
+    API.setScreenName(user.sub, {
+         screenName: screenNameBox.current.value
+    }).then(res=>{
+         // console.log(res);
+         logIn(screenNameBox.current.value);
+         screenNameBox.current.value = "";
+    });
+  }
 
   return (
-    <div className="App table">
-      <Header className="table">
-        <img className="top" src={logo}  alt="logo" height={75}/>
-        {isAuthenticated ? <LogoutButton className="scroll" />: <LoginButton className="scroll"/>}
-        <p>{username}</p>
-      </Header>
-      {isAuthenticated ? <Game isDM={isDM} userId={user.sub} user={user} />: <p></p>}
+    <div className="App">
+      <div className="table">
+        <Header className="table">
+          <img className="top" src={logo}  alt="logo" height={75}/>
+          {isAuthenticated ? <LogoutButton className="scroll" />: <LoginButton className="scroll"/>}
+          <p>{username}</p>
+          <form onSubmit={changeScreenName}>
+            <label htmlFor="usernameupdate">Change screenname here:</label>
+            <input className="col-4 decree-box" name="usernameupdate" ref={screenNameBox}/>
+          </form>
+        </Header>
+      </div>
+      {isAuthenticated ? <Game isDM={isDM} user={user} userId={user.sub}/>: <p></p>}
     </div>
   );
 }

@@ -22,10 +22,10 @@ export default{
      },
 
      getBook: function(title){
-          return axios.post(`/api/dnd/books/book:${title}`);
+          return axios.post(`/api/dnd/books/book/${title}`);
      },
 
      getBooks: function(id){
-          return axios.post(`/api/dnd/books-by-user/:${id}`);
+          return axios.get(`/api/dnd/books-by-user/${id}`);
      }
 }

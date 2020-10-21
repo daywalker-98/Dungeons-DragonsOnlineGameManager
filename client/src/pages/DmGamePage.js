@@ -31,6 +31,7 @@ function RenderDungeon(stfNthngs){
      // }
 
      function getBooks(){
+          console.log(stfNthngs.userId);
           API.getBooks(stfNthngs.userId).then(res=>{
                console.log(res);
           }).catch(err=>{
@@ -89,16 +90,16 @@ function RenderDungeon(stfNthngs){
                     }
                     break;
                // case"load":
-               //      let errorMessage = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+               //      let error = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
                //      if(decreeArray[1] === "game" || decreeArray[1] === "game"){
-               //      if(decreeArray[2]){
-               //           loadBook(decreeArray[2]);
+               //           if(decreeArray[2]){
+               //                loadBook(decreeArray[2]);
+               //           } else {
+               //                spellFailed(error);
+               //           }
                //      } else {
-               //           spellFailed(errorMessage);
+               //           spellFailed(error);
                //      }
-               // } else {
-               //      spellFailed(errorMessage);
-               // }
                //      break;
                case"roll":
                     if(decreeArray[1]){
@@ -677,31 +678,31 @@ function RenderDungeon(stfNthngs){
      };
      
      return(
-          <div className="table">
-               <div className="scroll-container table">
-                    <h1 className="scroll-heading">Decree Scroll</h1>
-                    <div className="decree-scroll">
-                         {royalDecrees ? royalDecrees.map((decree, index)=>{
-                         if(index >= royalDecrees.length-30)
-                              return(
-                                   <div key={index}>
-                                        <p className="text-align-left">{decree.text}</p>
-                                        {decree.value ? decree.value.map((value)=>{
-                                             return(
-                                                  <div>
-                                                       {value}
-                                                  </div>
-                                             );
-                                        }) : <p></p>}
-                                   </div>
-                              )
-                              else return null;
-                         }): <div></div>}
-                    </div>
-                    <form onSubmit={submitDecree}>
-                         <input className="col-12 decree-box" name="DecreeBox" ref={decreeRef} />
-                    </form>
+          <div className="scroll-container">
+               <h1 className="scroll-heading">Decree Scroll</h1>
+               <div className="decree-scroll">
+               {royalDecrees ? royalDecrees.map((decree, index)=>{
+                    if(index >= royalDecrees.length-30)
+                         return(
+                              <div key={index}>
+                                   <p className="text-align-left">{decree.text}</p>
+                                   {decree.value ? decree.value.map((value)=>{
+                                        return(
+                                             <div>
+                                                  {value}
+                                             </div>
+                                        );
+                                   }) : <p></p>}
+                              </div>
+                         )
+                    else {
+                         return null;
+                    }
+               }): <div></div>}
                </div>
+               <form onSubmit={submitDecree}>
+                    <input className="col-12 decree-box" name="DecreeBox" ref={decreeRef} />
+               </form>
           </div>
      );
 }
