@@ -23,7 +23,7 @@ router.route("/books/save")
      .put(booksController.create)
      .post(booksController.update);
 
-router.route("/books/book/:userId")
+router.route("/books/book/:title")
      .post(booksController.findById);
 
 router.route("/books-by-user/:id")

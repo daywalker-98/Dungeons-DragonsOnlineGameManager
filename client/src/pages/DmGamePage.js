@@ -2,6 +2,7 @@ import React, {useRef, useState} from "react";
 import API from "../utils/api";
 
 function RenderDungeon(stfNthngs){
+     const [MasterBook, setMasterBook] = useState([]);
      const [royalDecrees, setRoyalDecrees] = useState([]);
      const [party, setParty] = useState([{"name":"tiffany"},{"name":"kurt"},{"name":"ass"},{"name":"assballs69"},{"name":"heathcliff"},{"name":"ri'luaneth"}]);
      const [NPCs, setNPCs] = useState([{"name":"reginald","isHostile":false},{"name":"general_zod","isHostile":true}]);
@@ -26,20 +27,62 @@ function RenderDungeon(stfNthngs){
           return wordStore.join("_");
      }
 
-     // function loadBook(title){
-     //      API.getBook(title);
-     // }
+     function loadBook(title){
+          API.getBook(title).then(res=>{
+               console.log(res);
+               const book = res.data
+               setMasterBook(book);
+               if(book.royalDecrees){
+                    setRoyalDecrees(book.royalDecrees);
+               } else {
+                    setRoyalDecrees([]);
+               }
+               if(book.NPCs){
+                    setNPCs(book.NPCs)
+               } else {
+                    setNPCs([]);
+               }
+               if(book.party){
+                    setParty(book.party);
+               } else {
+                    setParty([]);
+               }
+          });
+     }
 
      function getBooks(){
-          console.log(stfNthngs.userId);
           API.getBooks(stfNthngs.userId).then(res=>{
                console.log(res);
+               const books = res.data;
+               console.log(books[0].title);
+               console.log(books[1].title);
+               let text = [{text:`Books:`}];
+               for(let i = -1; i < books.length; i++){
+                    if(books[i]){
+                         text = [...text, {text : `Title: ${books[i].title}`}];
+                         if(books[i].royalDecrees){
+                              text = [...text, {text : `Entries: ${books[i].royalDecrees.length}`}];
+                         } else {
+                              text = [...text, {text : `Entries: 0`}];
+                         }
+                    } else {
+                         text = [...text, {text : ` -<>- -|> -|- <|- -<>-`}];
+                    }
+               }
+               setRoyalDecrees([...royalDecrees,
+                    ...text
+               ]);
           }).catch(err=>{
                console.log(err);
           });
      }
 
-     function saveBook(title){
+     function saveBook(){
+          const Book = {id:stfNthngs.userId, title:MasterBook.title, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees};
+          API.saveBook(Book).then().catch();
+     }
+
+     function saveNewBook(title){
           const Book = {id:stfNthngs.userId, title:title, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees};
           API.saveBook(Book).then(res=>{
                console.log(res);
@@ -79,28 +122,29 @@ function RenderDungeon(stfNthngs){
           switch(decreeArray[0]){
                case"save":
                     let errorMessage = `To save the game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
-                    if(decreeArray[1] === "game" || decreeArray[1] === "game"){
+                    if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book:" || decreeArray[1] === "book"){
                          if(decreeArray[2]){
-                              saveBook(decreeArray[2]);
+                              saveNewBook(decreeArray[2]);
                          } else {
-                              spellFailed(errorMessage);
+                              saveBook();
+                              // spellFailed(errorMessage);
                          }
                     } else {
                          spellFailed(errorMessage);
                     }
                     break;
-               // case"load":
-               //      let error = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
-               //      if(decreeArray[1] === "game" || decreeArray[1] === "game"){
-               //           if(decreeArray[2]){
-               //                loadBook(decreeArray[2]);
-               //           } else {
-               //                spellFailed(error);
-               //           }
-               //      } else {
-               //           spellFailed(error);
-               //      }
-               //      break;
+               case"load":
+                    let error = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+                    if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book" || decreeArray[1] === "book:"){
+                         if(decreeArray[2]){
+                              loadBook(decreeArray[2]);
+                         } else {
+                              spellFailed(error);
+                         }
+                    } else {
+                         spellFailed(error);
+                    }
+                    break;
                case"roll":
                     if(decreeArray[1]){
                          const dice = decreeArray[1].split("d");
@@ -317,7 +361,9 @@ function RenderDungeon(stfNthngs){
                case"display":
                     switch(decreeArray[1]){
                          case"games":
+                         case"books":
                          case"games:":
+                         case"books:":
                               getBooks();
                               break;
                          case"npc:":
