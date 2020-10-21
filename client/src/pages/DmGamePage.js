@@ -4,9 +4,9 @@ import API from "../utils/api";
 function RenderDungeon(stfNthngs){
      const [MasterBook, setMasterBook] = useState([]);
      const [royalDecrees, setRoyalDecrees] = useState([]);
-     const [party, setParty] = useState([{"name":"tiffany"},{"name":"kurt"},{"name":"ass"},{"name":"assballs69"},{"name":"heathcliff"},{"name":"ri'luaneth"}]);
-     const [NPCs, setNPCs] = useState([{"name":"reginald","isHostile":false},{"name":"general_zod","isHostile":true}]);
-     const [capIsSpecial, setCapSpecial] = useState([{"name":"ri'luaneth","cap":"Ri'Luaneth"}]);
+     const [party, setParty] = useState([]);
+     const [NPCs, setNPCs] = useState([]);
+     const [capIsSpecial, setCapSpecial] = useState([]);
      const decreeRef = useRef();
 
      function capitalize(word){
@@ -121,7 +121,7 @@ function RenderDungeon(stfNthngs){
           const decreeArray = decreeTemp.split(" ");
           switch(decreeArray[0]){
                case"save":
-                    let errorMessage = `To save the game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+                    let errorMessage = `To save the game, recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
                     if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book:" || decreeArray[1] === "book"){
                          if(decreeArray[2]){
                               saveNewBook(decreeArray[2]);
@@ -341,11 +341,17 @@ function RenderDungeon(stfNthngs){
                          case"members":
                          case"members:":
                               let value=`Party members: `;
-                              for(let i = 0; i < party.length; i++){
-                                   if(i === party.length-1){
-                                        value+=` and ${capitalize(party[i].name)}.`
-                                   } else {
-                                        value+=`${capitalize(party[i].name)}, `;
+                              if(party.length == 1){
+                                   value+=`Just ${capitalize(party[0].name)}...`;
+                              } else if (party.length == 2){
+                                   value+=`${capitalize(party[0].name)} and ${capitalize(party[1].name)}.`;
+                              } else {
+                                   for(let i = 0; i < party.length; i++){
+                                        if(i === party.length-1){
+                                             value+=` and ${capitalize(party[i].name)}.`
+                                        } else {
+                                             value+=`${capitalize(party[i].name)}, `;
+                                        }
                                    }
                               }
                               setRoyalDecrees([...royalDecrees,
@@ -655,15 +661,15 @@ function RenderDungeon(stfNthngs){
                                                                       "text":value
                                                                  }]);
                                                        } else {
-                                                            let value = `${capitalize(orignalDecree[0])}'s new capitalization scheme has been set.`;
-                                                            setRoyalDecrees([...royalDecrees,
-                                                                 {
-                                                                      "text":value
-                                                                 }]);
                                                             setCapSpecial([...capIsSpecial,
                                                                  {
                                                                       "name":decreeArray[0],
                                                                       "cap":orignalDecree[0]
+                                                                 }]);
+                                                            let value = `${capitalize(orignalDecree[0])}'s new capitalization scheme has been set.`;
+                                                            setRoyalDecrees([...royalDecrees,
+                                                                 {
+                                                                      "text":value
                                                                  }]);
                                                        }
                                                        break;

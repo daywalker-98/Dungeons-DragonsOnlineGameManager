@@ -48,7 +48,7 @@ body {
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
   overflow-y: scroll;
-  height: 52vh;
+  max-height: 300px;
 }
 
 .text-alighn-left {
@@ -79,13 +79,10 @@ body {
 
 .scroll{
   background-color: bisque;
+  color: black;
 }
 
 .scroll-container {
   background-color: bisque;
-  position: absolute;
-  right: 5px;
-  width: 45vw;
-  padding: 10px;
-  height: 66vh;
+  padding: 30px;
 }
