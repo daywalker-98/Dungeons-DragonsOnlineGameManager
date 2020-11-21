@@ -1,13 +1,25 @@
-import React, {useRef, useState} from "react";
+import React, {useRef, useEffect, useState} from "react";
+// import { books } from "../../../models";
 import API from "../utils/api";
 
 function RenderDungeon(stfNthngs){
-     const [MasterBook, setMasterBook] = useState([]);
+     const [MasterBook, setMasterBook] = useState(stfNthngs.books);
      const [royalDecrees, setRoyalDecrees] = useState([]);
      const [party, setParty] = useState([]);
      const [NPCs, setNPCs] = useState([]);
      const [capIsSpecial, setCapSpecial] = useState([]);
      const decreeRef = useRef();
+     useEffect(() => {
+          console.log(`Loading ${stfNthngs.gameName}`);
+          console.log(stfNthngs.books);
+          setTimeout(()=>{
+               if(stfNthngs.books){
+                    console.log(MasterBook);
+               } else {
+                    console.log(`Failed to load books.`);
+               }
+          }, 1000);
+     }, [stfNthngs.books]);
 
      function capitalize(word){
           for(let i = 0; i < capIsSpecial.length; i++){
@@ -27,73 +39,61 @@ function RenderDungeon(stfNthngs){
           return wordStore.join("_");
      }
 
-     function loadBook(title){
-          API.getBook(title).then(res=>{
-               console.log(res);
-               const book = res.data
-               setMasterBook(book);
-               if(book.royalDecrees){
-                    setRoyalDecrees(book.royalDecrees);
-               } else {
-                    setRoyalDecrees([]);
-               }
-               if(book.NPCs){
-                    setNPCs(book.NPCs)
-               } else {
-                    setNPCs([]);
-               }
-               if(book.party){
-                    setParty(book.party);
-               } else {
-                    setParty([]);
-               }
+     // function loadBook(title){
+          // API.getBook(id, title).then(res=>{
+          //      const book = res;
+          //      setMasterBook(res.data[0]);
+          // console.log(stfNthngs.books);
+          // setMasterBook(stfNthngs.books);
+          // setTimeout(console.log(MasterBook), 1000);
+          // console.log(`Game loaded.`);
+               // if(book.royalDecrees){
+               //      console.log(`royalDecrees set: ${console.log(book.royalDecrees)}`);
+               //      setRoyalDecrees(book.royalDecrees);
+               // } else {
+               //      console.log(`No royalDecrees set.`);
+               //      setRoyalDecrees([]);
+               // }
+               // if(book.NPCs){
+               //      console.log(`NPCs set: ${book.NPCs}`);
+               //      setNPCs(book.NPCs)
+               // } else {
+               //      console.log(`No NPCs set.`);
+               //      setNPCs([]);
+               // }
+               // if(book.party){
+               //      console.log(`Party set: ${book.party}`);
+               //      setParty(book.party);
+               // } else {
+               //      console.log(`No party members set.`);
+               //      setParty([]);
+               // }
+               // });
+     // }
+
+     
+
+     function saveBook(Book, title){
+          API.saveBook(Book, title).then(res=>{
+               console.log(`Success...?: ${JSON.stringify(res)}`);
+          }).catch(err=>{
+               console.log(err)
+               saveNewBook(stfNthngs.gameName)
           });
      }
 
-     function getBooks(){
-          API.getBooks(stfNthngs.userId).then(res=>{
+     function saveNewBook(MasterBook, title){
+          API.newBook(MasterBook, title).then(res=>{
                console.log(res);
-               const books = res.data;
-               console.log(books[0].title);
-               console.log(books[1].title);
-               let text = [{text:`Books:`}];
-               for(let i = -1; i < books.length; i++){
-                    if(books[i]){
-                         text = [...text, {text : `Title: ${books[i].title}`}];
-                         if(books[i].royalDecrees){
-                              text = [...text, {text : `Entries: ${books[i].royalDecrees.length}`}];
-                         } else {
-                              text = [...text, {text : `Entries: 0`}];
-                         }
-                    } else {
-                         text = [...text, {text : ` -<>- -|> -|- <|- -<>-`}];
-                    }
-               }
-               setRoyalDecrees([...royalDecrees,
-                    ...text
-               ]);
           }).catch(err=>{
                console.log(err);
           });
      }
 
-     function saveBook(){
-          const Book = {id:stfNthngs.userId, title:MasterBook.title, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees};
-          API.saveBook(Book).then().catch();
-     }
-
-     function saveNewBook(title){
-          const Book = {id:stfNthngs.userId, title:title, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees};
-          API.saveBook(Book).then(res=>{
-               console.log(res);
-          }).catch(err=>{
-               console.log(err);
-               API.newBook(Book).then(res=>{
-                    console.log(res);
-               }).catch(err=>{
-                    console.log(err);
-               });
-          });
+     function addToRoyalDecrees(decreeObject){
+          setRoyalDecrees(decreeObject);
+          setMasterBook({id:stfNthngs.userId, title:stfNthngs.gameName, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees});
+          setTimeout(saveBook(MasterBook, stfNthngs.title),400);
      }
      
      function spellFailed(error){
@@ -108,7 +108,7 @@ function RenderDungeon(stfNthngs){
                errorMessage = message;
           }
           const decreefailed = `${randomEvents[randomEvent]} ${errorMessage}`;
-          setRoyalDecrees([...royalDecrees,
+          addToRoyalDecrees([...royalDecrees,
                {
                     "text":decreefailed
                }]);
@@ -120,31 +120,31 @@ function RenderDungeon(stfNthngs){
           const decreeTemp = decreeRef.current.value.toLowerCase();
           const decreeArray = decreeTemp.split(" ");
           switch(decreeArray[0]){
-               case"save":
-                    let errorMessage = `To save the game, recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
-                    if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book:" || decreeArray[1] === "book"){
-                         if(decreeArray[2]){
-                              saveNewBook(decreeArray[2]);
-                         } else {
-                              saveBook();
-                              // spellFailed(errorMessage);
-                         }
-                    } else {
-                         spellFailed(errorMessage);
-                    }
-                    break;
-               case"load":
-                    let error = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
-                    if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book" || decreeArray[1] === "book:"){
-                         if(decreeArray[2]){
-                              loadBook(decreeArray[2]);
-                         } else {
-                              spellFailed(error);
-                         }
-                    } else {
-                         spellFailed(error);
-                    }
-                    break;
+               // case"save":
+               //      let errorMessage = `To save the game, recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+               //      if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book:" || decreeArray[1] === "book"){
+               //           if(decreeArray[2]){
+               //                saveNewBook(decreeArray[2]);
+               //           } else {
+               //                saveBook(stfNthngs.gameName);
+               //                spellFailed(errorMessage);
+               //           }
+               //      } else {
+               //           spellFailed(errorMessage);
+               //      }
+               //      break;
+               // case"load":
+               //      let error = `To load a game, please recite "save game [insert title]". All spaces in the title must be represented with underscores. `;
+               //      if(decreeArray[1] === "game" || decreeArray[1] === "game:" || decreeArray[1] === "book" || decreeArray[1] === "book:"){
+               //           if(decreeArray[2]){
+               //                loadBook(decreeArray[2]);
+               //           } else {
+               //                spellFailed(error);
+               //           }
+               //      } else {
+               //           spellFailed(error);
+               //      }
+               //      break;
                case"roll":
                     if(decreeArray[1]){
                          const dice = decreeArray[1].split("d");
@@ -191,7 +191,7 @@ function RenderDungeon(stfNthngs){
                          }
                          dieRollArray.push(`sum: ${sum}`);
                          const value = dieRollArray;
-                         setRoyalDecrees([...royalDecrees,
+                         addToRoyalDecrees([...royalDecrees,
                               {
                                    "text": decreeRef.current.value,
                                    "value":value
@@ -211,7 +211,7 @@ function RenderDungeon(stfNthngs){
                                              const newPlayer = decreeArray[3];
                                              if(party.includes(newPlayer)){
                                                   const value = `${capitalize(newPlayer)} is already a member of your party.`;
-                                                  setRoyalDecrees([...royalDecrees,
+                                                  addToRoyalDecrees([...royalDecrees,
                                                        {
                                                             "text":value
                                                        }
@@ -239,7 +239,7 @@ function RenderDungeon(stfNthngs){
                                                             "name":newPlayer
                                                        }
                                                   ]);
-                                                  setRoyalDecrees([...royalDecrees,
+                                                  addToRoyalDecrees([...royalDecrees,
                                                        {
                                                             "text":value
                                                        }
@@ -258,7 +258,7 @@ function RenderDungeon(stfNthngs){
                               const newNPC = decreeArray[3];
                               if(NPCs.includes(newNPC)){
                                    const value = `${capitalize(newNPC)} is already a member of a non player character.`;
-                                   setRoyalDecrees([...royalDecrees,
+                                   addToRoyalDecrees([...royalDecrees,
                                         {
                                              "text":value
                                         }
@@ -270,7 +270,7 @@ function RenderDungeon(stfNthngs){
                                         "name":capitalize(newNPC)
                                    }
                               ]);
-                              setRoyalDecrees([...royalDecrees,
+                              addToRoyalDecrees([...royalDecrees,
                                    {
                                         "text":value
                                    }
@@ -291,14 +291,14 @@ function RenderDungeon(stfNthngs){
                                              const index = party.indexOf(party);
                                              party.splice(index, 1);
                                              const value = `${capitalize(exitPlayer)} has left the party.`;
-                                             setRoyalDecrees([...royalDecrees,
+                                             addToRoyalDecrees([...royalDecrees,
                                                   {
                                                        "text":value
                                                   }
                                              ]);
                                         } else {
                                              const value = `${capitalize(exitPlayer)} is not a member of the party`;
-                                             setRoyalDecrees([...royalDecrees,
+                                             addToRoyalDecrees([...royalDecrees,
                                                   {
                                                        "text":value
                                                   }
@@ -314,7 +314,7 @@ function RenderDungeon(stfNthngs){
                               let newNPC = decreeArray[2];
                               if(NPCs.includes(newNPC)){
                                    const value = `${capitalize(newNPC)} is already a member of a non player character.`;
-                                   setRoyalDecrees([...royalDecrees,
+                                   addToRoyalDecrees([...royalDecrees,
                                         {
                                              "text":value
                                         }
@@ -326,7 +326,7 @@ function RenderDungeon(stfNthngs){
                                         "name":capitalize(newNPC)
                                    }
                               ]);
-                              setRoyalDecrees([...royalDecrees,
+                              addToRoyalDecrees([...royalDecrees,
                                    {
                                         "text":value
                                    }
@@ -354,7 +354,7 @@ function RenderDungeon(stfNthngs){
                                         }
                                    }
                               }
-                              setRoyalDecrees([...royalDecrees,
+                              addToRoyalDecrees([...royalDecrees,
                                    {
                                         "text":value
                                    }
@@ -366,12 +366,6 @@ function RenderDungeon(stfNthngs){
                     break;
                case"display":
                     switch(decreeArray[1]){
-                         case"games":
-                         case"books":
-                         case"games:":
-                         case"books:":
-                              getBooks();
-                              break;
                          case"npc:":
                          case"npc":
                          case"npcs":
@@ -392,7 +386,7 @@ function RenderDungeon(stfNthngs){
                                         }
                                    }
                               }
-                              setRoyalDecrees([...royalDecrees,
+                              addToRoyalDecrees([...royalDecrees,
                                    {
                                         "text":value
                                    }
@@ -423,7 +417,7 @@ function RenderDungeon(stfNthngs){
                                         if(checkForPunc[checkForPunc.length-1] !== "." && checkForPunc[checkForPunc.length-1] !== "!" && checkForPunc[checkForPunc.length-1] !== "?" ){
                                              value+=".";
                                         }
-                                        setRoyalDecrees([...royalDecrees,
+                                        addToRoyalDecrees([...royalDecrees,
                                              {
                                                   "text":value
                                              }
@@ -475,7 +469,7 @@ function RenderDungeon(stfNthngs){
                               spellFailed();
                          }
                          if(result){
-                              setRoyalDecrees([...royalDecrees,
+                              addToRoyalDecrees([...royalDecrees,
                                    {
                                         "text":result
                                    }
@@ -485,7 +479,7 @@ function RenderDungeon(stfNthngs){
                case"banana":
                     var name = decreeArray[1];
                     name = capitalize(name);
-                    setRoyalDecrees([...royalDecrees,
+                    addToRoyalDecrees([...royalDecrees,
                          {
                               "text":`${name} is bananas!`
                          }
@@ -494,7 +488,7 @@ function RenderDungeon(stfNthngs){
                case"troglodyte":
                     var name = decreeArray[1];
                     name = capitalize(name);
-                    setRoyalDecrees([...royalDecrees,
+                    addToRoyalDecrees([...royalDecrees,
                          {
                               "text":`${name} is an uneducated troglodyte.`
                          }
@@ -513,16 +507,17 @@ function RenderDungeon(stfNthngs){
                               case"attack":
                               case"attacks":
                               case"attacked":
-                                   setRoyalDecrees([...royalDecrees,
-                                   {
-                                        "text":`${capitalize(subject)} attacked ` + "${capitalize(object)}"
-                                   }]);
+                                   addToRoyalDecrees([...royalDecrees,
+                                        {
+                                             "text":`${capitalize(subject)} attacked ` + "${capitalize(object)}"
+                                        }]);
                                    break;
-
+                              default:
+                                   spellFailed();
                          }
                     }
                     else{
-                         setRoyalDecrees([...royalDecrees,
+                         addToRoyalDecrees([...royalDecrees,
                          {
                               "text": `${capitalize(decreeArray[1])} is not a player`
                          }]);
@@ -595,7 +590,7 @@ function RenderDungeon(stfNthngs){
                                         break;
                                    default:
                               }
-                              setRoyalDecrees([...royalDecrees,
+                              addToRoyalDecrees([...royalDecrees,
                                    {
                                         "text": `${capitalize(char)} ${dataType}: ${value}`
                                    }]);
@@ -627,7 +622,7 @@ function RenderDungeon(stfNthngs){
                                    text = [...text, {text : `-INT: ${party[index].int}`}];
                                    text = [...text, {text : `-WIS: ${party[index].wis}`}];
                                    text = [...text, {text : `-CHA: ${party[index].cha}`}];
-                                   setRoyalDecrees([...royalDecrees,
+                                   addToRoyalDecrees([...royalDecrees,
                                         ...text
                                    ]);
                                    break;
@@ -656,7 +651,7 @@ function RenderDungeon(stfNthngs){
                                                        }
                                                        if(index){
                                                             let value = `${capitalize(decreeArray[0])} already has special capitalization. Were you attempting to remove a special capitalization scheme for ${capitalize(decreeArray[0])}?`;
-                                                            setRoyalDecrees([...royalDecrees,
+                                                            addToRoyalDecrees([...royalDecrees,
                                                                  {
                                                                       "text":value
                                                                  }]);
@@ -667,7 +662,7 @@ function RenderDungeon(stfNthngs){
                                                                       "cap":orignalDecree[0]
                                                                  }]);
                                                             let value = `${capitalize(orignalDecree[0])}'s new capitalization scheme has been set.`;
-                                                            setRoyalDecrees([...royalDecrees,
+                                                            addToRoyalDecrees([...royalDecrees,
                                                                  {
                                                                       "text":value
                                                                  }]);
@@ -693,13 +688,13 @@ function RenderDungeon(stfNthngs){
                                                                  if(index){
                                                                       capIsSpecial.splice(index);
                                                                       let value = `${capitalize(decreeArray[0])} has not special capitalization.`;
-                                                                      setRoyalDecrees([...royalDecrees,
+                                                                      addToRoyalDecrees([...royalDecrees,
                                                                            {
                                                                                 "text":value
                                                                            }]);
                                                                  } else {
                                                                       let value = `${capitalize(decreeArray[0])} has not special capitalization. Were you attempting to set a special capitalization scheme for ${capitalize(decreeArray[0])}?`;
-                                                                      setRoyalDecrees([...royalDecrees,
+                                                                      addToRoyalDecrees([...royalDecrees,
                                                                            {
                                                                                 "text":value
                                                                            }

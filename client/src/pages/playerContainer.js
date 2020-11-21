@@ -1,7 +1,7 @@
 import React, {useRef} from "react";
 import RenderAdventure from "./Player/CharGamePage";
 
-function renderPlayer(){
+function renderPlayer(stfNthngs){
      return(
           <RenderAdventure />
      );

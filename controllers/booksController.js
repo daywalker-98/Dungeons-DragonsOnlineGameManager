@@ -23,15 +23,12 @@ module.exports = {
           db.books
                .create(req.body)
                .then(dbModel=>res.json(dbModel))
-               .catch(err=>{
-                    console.log(err);
-                    res.status(422).json(err)
-               });
+               .catch(res.status(422).json(err));
      },
      update: function(req, res){
-          console.log(req.body);
+          console.log(`Update input: ${JSON.stringify(req.body)}`);
           db.books
-               .findOneAndUpdate({_id: req.body.id}, req.body)
+               .findOneAndUpdate({id: req.params.id}, req.body)
                .then(dbModel=>res.json(dbModel))
                .catch(err=>res.status(422).json(err));
      },

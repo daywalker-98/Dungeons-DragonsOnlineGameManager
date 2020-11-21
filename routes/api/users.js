@@ -19,11 +19,13 @@ router.route("/users/:id")
 //      .delete(booksController.remove);
 
      // /api/dnd/books/:userId
-router.route("/books/save")
-     .put(booksController.create)
+router.route("/books/save/:title")
      .post(booksController.update);
 
-router.route("/books/book/:title")
+router.route(`/books/new`)
+     .put(booksController.create);
+
+router.route("/books/book/:id/:title")
      .post(booksController.findById);
 
 router.route("/books-by-user/:id")

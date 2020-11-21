@@ -1,6 +1,4 @@
 import React, {useEffect, useRef, useState} from "react";
-import RenderPlayer from "./pages/playerContainer";
-import RenderDungeon from "./pages/DmGamePage";
 import {useAuth0} from "@auth0/auth0-react";
 // import LogIn from "./pages/logIn";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -9,14 +7,21 @@ import Game from "./pages/game";
 import LoginButton from "./Components/loginButton";
 import LogoutButton from "./Components/logoutButton";
 import Header from "./Components/Header";
+import MainMenu from './pages/MainMenu';
 import API from "./utils/api";
+import GameInstructions from "./Components/GameInstructions";
 
 function App() {
   const screenNameBox = useRef();
   const {user, isAuthenticated} = useAuth0();
   const [account, setAccount] = useState([]);
   const [username, logIn] = useState("");
-  const [isDM, changeDM] = useState(true);
+  const [isDM, changeDM] = useState("false");
+  const [books, setBooks] = useState([]);
+  const [gameState, setGameState] = useState(false);
+  const [gameCode, setGameCode] = useState();
+  const [gameName, setGameName] = useState();
+  const [charName, setCharName] = useState();
   const logo = "https://www.underconsideration.com/brandnew/archives/dungeons_and_dragons_40_ampersand_detail_black.jpg";
   useEffect(() => {
     if(user){
@@ -24,11 +29,8 @@ function App() {
       API.getUser({
         id: user.sub
       }).then(result=>{
-        console.log(result);
         setAccount(result.data);
         logIn(result.data[0].screenName);
-        console.log(result.data[0].screenName);
-        console.log(JSON.stringify(account));
         if(JSON.stringify(result.data) === "[]"){
           API.newUser({
             screenName: user.nickname,
@@ -36,7 +38,6 @@ function App() {
           }).then(result=>{
             setAccount(result.data);
             logIn(result.data.screenName);
-            console.log(`newUser .then working: ${account}`);
           }).catch(err=>console.log(err));
         }
       }).catch((err)=>{
@@ -60,27 +61,56 @@ function App() {
     e.preventDefault();
     API.setScreenName(user.sub, {
          screenName: screenNameBox.current.value
-    }).then(res=>{
+    }).then(()=>{
          // console.log(res);
          logIn(screenNameBox.current.value);
          screenNameBox.current.value = "";
     });
   }
 
+  function setGameStates(v){
+    setGameState(v);
+  }
+
+  function changeDMs(v){
+    changeDM(v);
+  }
+
+  function setPlayersBooks(v){
+    setBooks(v);
+  }
+
+  function setGame(name, code, charName){
+    setGameName(name);
+    setGameCode(code);
+    setCharName(charName);
+  }
+
   return (
-    <div className="App">
-      <div className="table">
+    <div className="App table">
         <Header className="table">
-          <img className="top" src={logo}  alt="logo" height={75}/>
+          <img className="top rounded" src={logo}  alt="logo" height={75}/>
           {isAuthenticated ? <LogoutButton className="scroll" />: <LoginButton className="scroll"/>}
           <p>{username}</p>
+          {isAuthenticated ?
           <form onSubmit={changeScreenName}>
-            <label htmlFor="usernameupdate">Change screenname here:</label>
+            <div>
+              <label htmlFor="usernameupdate">Change screenname here:</label>
+            </div>
             <input className="col-4 decree-box" name="usernameupdate" ref={screenNameBox}/>
-          </form>
+          </form> : <p></p>}
+          <div>
+            {gameName ? <h2>Game: {gameName}</h2> : <p></p>}
+          </div>
         </Header>
-      </div>
-      {isAuthenticated ? <Game isDM={isDM} user={user} userId={user.sub}/>: <p></p>}
+      {isAuthenticated && gameState && books ?
+        <Game setGameName={(v)=>setGameName(v)} books={books} gameName={gameName} gameCode={gameCode} isDM={isDM} user={user} userId={user.sub} username={username} charName={charName}/>
+      :
+      isAuthenticated ?
+        <MainMenu setGameState={(v)=>setGameStates(v)} userId={user.sub} setGame={(gameName, code, charName)=>setGame(gameName, code, charName)} changeDM={(v)=>changeDMs(v)} setPlayerBooks={(v)=>setPlayersBooks(v)} books={books} gameState={gameState} isAuthenticated={isAuthenticated} isDM={isDM}/>
+      :
+        <div className="table"><p>Log in to begin your adventure...</p><GameInstructions /></div>
+      }
     </div>
   );
 }

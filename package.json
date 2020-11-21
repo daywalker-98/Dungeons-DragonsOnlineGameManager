@@ -25,6 +25,7 @@
           "axios": "^0.20.0",
           "express": "^4.16.3",
           "if-env": "^1.0.4",
-          "mongoose": "^5.10.9"
+          "mongoose": "^5.10.9",
+          "socketio": "^1.0.0"
      }
 }
