@@ -22,7 +22,7 @@ export default{
      },
 
      newBook: function(book){
-          return axios.put(`/api/dnd/books/new`, book);
+          return axios.post(`/api/dnd/books/new`, book);
      },
 
      getBook: function(id, title){

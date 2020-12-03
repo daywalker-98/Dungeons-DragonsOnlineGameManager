@@ -15,7 +15,11 @@ function RenderDungeon(stfNthngs){
 
 
 
-     useEffect(() => {
+     useEffect(() =>{
+          loadBooks();
+     }, [stfNthngs]);
+
+     function loadBooks(){
           API.getBooks(stfNthngs.userId).then(res=>{
                console.log(`API.getBooks(): success (results below ▼)`);
                console.log(res.data);
@@ -23,41 +27,52 @@ function RenderDungeon(stfNthngs){
                console.log(`Loading book: ${stfNthngs.gameName}`);
                let i = 0;
                function loadBook(i){
-                    if(books[i].title == stfNthngs.gameName){
-                         setTimeout(console.log(i), 1000);
-                         console.log(books);
-                         console.log(books[i]);
-                         setTimeout(()=>{
-                              if(books){
-                                   setBookIndex(i);
-                                   loadBookData(i);
-                                   // setInterval(setRoyalDecrees(books[stfNthngs.gameName].royalDecrees),1000);
-                              } else {
-                                   console.log(`Failed to load books.`);
-                                   saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName}, stfNthngs.gameName);
-                                   setBooks();
+                    if(books[i]){
+                         if(books[i].title == stfNthngs.gameName){
+                              setTimeout(console.log(i), 1000);
+                              setTimeout(()=>{
+                                   if(books){
+                                        console.log(i);
+                                        setBookIndex(i);
+                                        loadBookData(i);
+                                        // setInterval(setRoyalDecrees(books[stfNthngs.gameName].royalDecrees),1000);
+                                   } else {
+                                        console.log(`Failed to load books.`);
+                                        saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName}, stfNthngs.gameName);
+                                        loadBook();
+                                   }
+                              }, 1000);
+                         }else{
+                              if(i < books.length){
+                                   console.log(i);
+                                   i++;
+                                   loadBook(i);
+                              }else{
+                                   console.log(`Failed to load books.
+                                   at if(books[i].title == stfNthngs.gameName){
+                                   }else{`);
                               }
-                         }, 1000);
-                    } else {
-                         if(i < books.length){
-                              i++;
-                              console.log(i);
-                              loadBook(i);
-                         } else {
-                              console.log(`Failed to load book.`);
                          }
                     }
-                    API.setGameCode(stfNthngs.gameCode, books[bookIndex]._id).then(res=>{
-                         console.log(res);
-                    }).catch(err=>{
-                         console.log(err);
-                    });
+                    else{
+                         if(i < books.length){
+                              console.log(i);
+                              i++;
+                              loadBook(i);
+                         } else {
+                              console.log(`Failed to load book.
+                              at if(books[i]){
+                              }else{`);
+                              saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName, gameCode:stfNthngs.gameCode}, stfNthngs.gameName);
+                         }
+                    }
                }
                loadBook(i);
           }).catch(err=>{
-               console.log(`API.getBooks() inside useEffect in DmGamePage: ${err}`);
+               console.log(`Error in API.getBooks() at loadBooks()`);
+               console.log(err);
           });
-     }, [books]);
+     }
 
      useEffect(scrollToBottom, [royalDecrees]);
 
@@ -84,44 +99,54 @@ function RenderDungeon(stfNthngs){
      }
 
      function loadBookData(i){
+          console.log(books[i]);
           if(books[i].royalDecrees){
                setRoyalDecrees(books[i].royalDecrees);
-               setTimeout(console.log(`royalDecrees set: ${console.log(royalDecrees)}`), 1000);
+               setTimeout(()=>{
+                    console.log(`royalDecrees set:`)
+                    console.log(books[i].royalDecrees);
+               }, 1000);
           } else {
                console.log(`No royalDecrees set.`);
                setRoyalDecrees([]);
           }
           if(books[i].NPCs){
                setNPCs(books[i].NPCs);
-               setTimeout(console.log(`NPCs set: ${NPCs}`), 1000);
+               setTimeout(()=>{
+                    console.log(`NPCs set:`)
+                    console.log(NPCs);
+               }, 1000);
           } else {
                console.log(`No NPCs set.`);
                setNPCs([]);
           }
           if(books[i].party){
-               console.log(`Party set: ${party}`);
-               setTimeout(setParty(books[i].party), 1000);
+               setParty(books[i].party);
+               setTimeout(()=>{
+                    console.log(`Party set:`);
+                    console.log(party);
+                    console.log(`Game loaded.`);
+               }, 1000);
           } else {
                console.log(`No party members set.`);
                setParty([]);
+               console.log(`Game loaded.`);
           }
-          console.log(`Game loaded.`);
      }
-
-     
 
      function saveBook(Book, id){
           API.saveBook(Book, id).then(res=>{
-               console.log(`Success...?: ${JSON.stringify(res)}`);
+               console.log(res);
           }).catch(err=>{
                console.log(err)
-               saveNewBook(stfNthngs.gameName)
+               saveNewBook(Book, stfNthngs.gameName)
           });
      }
 
      function saveNewBook(Book, title){
           API.newBook(Book, title).then(res=>{
                console.log(res);
+               loadBooks();
           }).catch(err=>{
                console.log(err);
           });
@@ -129,9 +154,9 @@ function RenderDungeon(stfNthngs){
 
      function addToRoyalDecrees(decreeObject){
           setRoyalDecrees(decreeObject);
-          var saveThisBook = {_id: books[bookIndex]._id, id:stfNthngs.userId, title:stfNthngs.gameName, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:decreeObject};
+          var saveThisBook = {id:stfNthngs.userId, title:stfNthngs.gameName, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:decreeObject};
           console.log(saveThisBook);
-          setTimeout(saveBook(saveThisBook, ),1000);
+          setTimeout(saveBook(saveThisBook, stfNthngs.userId),1000);
      }
      
      function spellFailed(error){

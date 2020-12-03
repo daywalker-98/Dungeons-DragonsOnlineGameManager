@@ -6,8 +6,7 @@ const booksSchema = new Schema({
      title:{
           type: String,
           trim: true,
-          unique: true,
-          required: "Enter a book title."
+          required: true
      },
      id:{
           type: String,
@@ -15,8 +14,8 @@ const booksSchema = new Schema({
      },
      gameCode:{
           type: String,
-          trim: true,
-          unique: true,
+          trim: true
+          // unique: true,
      },
      royalDecrees:{
           type: Object,

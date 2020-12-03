@@ -3,6 +3,8 @@ import API from "../utils/api";
 import {bookApiContext} from '../context/bookApiContext';
 
 function MainMenu(stfNthngs){
+     const [message, setMessage] = useState(`Choose a game mode`);
+     const [gameCodeMessage, setGameCodeMessage] = useState()
      const [books, setBooks] = useContext(bookApiContext);
      // const [chars, setChars] = useState([]);
      const gameCodeBox = useRef();
@@ -25,18 +27,36 @@ function MainMenu(stfNthngs){
      }
 
      function setGame(gameName, gameCode, charName){
-          stfNthngs.setGame(gameName, gameCode, charName);
-          stfNthngs.setGameState(true);
+          if(gameCode){
+               stfNthngs.setGame(gameName, gameCode, charName);
+               stfNthngs.setGameState(true);
+          }else{
+               setMessage(`Please enter a game code.`);
+               setGameCodeMessage(`Required field`);
+               // messageTimeOut();
+          }
      }
+
+     // function messageTimeOut(){
+     //      console.log(`messageTimeOut()`);
+     //      setTimeout(setMessage(`Enter desired game settings.`), 10000);
+     // }
 
      return(
           <div>
+               {message ?
+               <div>
+                    <p>{message}</p>
+               </div> : <div><p></p></div>}
                {stfNthngs.isDM === true ?
                <div>
-                    <button onClick={()=>stfNthngs.changeDM(false)}>Back</button>
+                    <button onClick={()=>{
+                         stfNthngs.changeDM(false)
+                         setMessage(`Choose a game mode`);
+                    }}>Back</button>
                     <div className="table">
                          <div>
-                              <label>Enter Game Code:</label>
+                              <label>Enter Game Code: {gameCodeMessage}</label>
                          </div>
                          <input ref={gameCodeBox}/>
                     </div>
@@ -68,7 +88,10 @@ function MainMenu(stfNthngs){
                </div>
                : stfNthngs.isDM === "player" ?
                <div>
-                    <button onClick={()=>stfNthngs.changeDM(false)}>Back</button>
+                    <button onClick={()=>{
+                         stfNthngs.changeDM(false)
+                         setMessage(`Choose a game mode`);
+                    }}>Back</button>
                     <form className="table" onSubmit={()=>setGame()}>
                          <div>
                               <div>
@@ -94,8 +117,14 @@ function MainMenu(stfNthngs){
                :
                <div>
                     <div>
-                         <button onClick={()=>stfNthngs.changeDM(true)} >Start game as Dungeon Master</button>
-                         <button onClick={()=>stfNthngs.changeDM("player")} >Start game as Party Member</button>
+                         <button onClick={()=>{
+                              stfNthngs.changeDM(true)
+                              setMessage(`Enter desired game settings.`);
+                         }} >Start game as Dungeon Master</button>
+                         <button onClick={()=>{
+                              stfNthngs.changeDM("player")
+                              setMessage(`Choose your character`);
+                         }} >Start game as Party Member</button>
                     </div>
                     <div>
                          <p>Only the Dungeon Master mode is opperational at the moment. Do not click the player option.</p>

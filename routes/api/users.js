@@ -26,7 +26,7 @@ router.route(`/books/gameCode`)
      .post(booksController.update);
 
 router.route(`/books/new`)
-     .put(booksController.create);
+     .post(booksController.create);
 
 router.route("/books/book/title/:title")
      .post(booksController.findByTitle);
