@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
+import {BookProvider} from './context/bookApiContext';
 import {useAuth0} from "@auth0/auth0-react";
 // import LogIn from "./pages/logIn";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,7 +18,6 @@ function App() {
   const [account, setAccount] = useState([]);
   const [username, logIn] = useState("");
   const [isDM, changeDM] = useState("false");
-  const [books, setBooks] = useState([]);
   const [gameState, setGameState] = useState(false);
   const [gameCode, setGameCode] = useState();
   const [gameName, setGameName] = useState();
@@ -51,7 +51,6 @@ function App() {
           console.log(`newUser .then working: ${account}`);
         }).catch(err=>console.log(err));
       });
-
     } else {
       logIn("");
     }
@@ -76,10 +75,6 @@ function App() {
     changeDM(v);
   }
 
-  function setPlayersBooks(v){
-    setBooks(v);
-  }
-
   function setGame(name, code, charName){
     setGameName(name);
     setGameCode(code);
@@ -87,6 +82,7 @@ function App() {
   }
 
   return (
+    <BookProvider>
     <div className="App table">
         <Header className="table">
           <img className="top rounded" src={logo}  alt="logo" height={75}/>
@@ -103,15 +99,16 @@ function App() {
             {gameName ? <h2>Game: {gameName}</h2> : <p></p>}
           </div>
         </Header>
-      {isAuthenticated && gameState && books ?
-        <Game setGameName={(v)=>setGameName(v)} books={books} gameName={gameName} gameCode={gameCode} isDM={isDM} user={user} userId={user.sub} username={username} charName={charName}/>
+      {isAuthenticated && gameState ?
+        <Game setGameName={(v)=>setGameName(v)} gameName={gameName} gameCode={gameCode} isDM={isDM} user={user} userId={user.sub} username={username} charName={charName}/>
       :
       isAuthenticated ?
-        <MainMenu setGameState={(v)=>setGameStates(v)} userId={user.sub} setGame={(gameName, code, charName)=>setGame(gameName, code, charName)} changeDM={(v)=>changeDMs(v)} setPlayerBooks={(v)=>setPlayersBooks(v)} books={books} gameState={gameState} isAuthenticated={isAuthenticated} isDM={isDM}/>
+        <MainMenu setGameState={(v)=>setGameStates(v)} userId={user.sub} setGame={(gameName, code, charName)=>setGame(gameName, code, charName)} changeDM={(v)=>changeDMs(v)} gameState={gameState} isAuthenticated={isAuthenticated} isDM={isDM}/>
       :
         <div className="table"><p>Log in to begin your adventure...</p><GameInstructions /></div>
       }
     </div>
+    </BookProvider>
   );
 }
 

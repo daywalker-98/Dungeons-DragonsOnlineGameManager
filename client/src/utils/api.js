@@ -13,8 +13,12 @@ export default{
           return axios.put(`/api/dnd/users/${userId}`, screenName);
      },
 
-     saveBook: function(book, title){
-          return axios.post(`/api/dnd/books/save${title}`, book);
+     setGameCode: function(gameCode, id){
+          return axios.post(`/api/dnd/books/gameCode`, {gameCode:gameCode,_id:id});
+     },
+
+     saveBook: function(book, id){
+          return axios.post(`/api/dnd/books/save/:${id}`, book);
      },
 
      newBook: function(book){
@@ -27,5 +31,9 @@ export default{
 
      getBooks: function(id){
           return axios.get(`/api/dnd/books-by-user/${id}`);
+     },
+
+     deleteBook: function(id){
+          return axios.delete(`/api/dnd/books/delete/${id}`);
      }
 }

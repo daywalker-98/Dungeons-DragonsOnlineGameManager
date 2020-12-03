@@ -18,17 +18,26 @@ router.route("/users/:id")
 //      .get(usersController.findAllCharacters)
 //      .delete(booksController.remove);
 
-     // /api/dnd/books/:userId
-router.route("/books/save/:title")
+     // /api/dnd/books/save/:title
+router.route("/books/save/:id")
+     .post(booksController.update);
+
+router.route(`/books/gameCode`)
      .post(booksController.update);
 
 router.route(`/books/new`)
      .put(booksController.create);
 
+router.route("/books/book/title/:title")
+     .post(booksController.findByTitle);
+
 router.route("/books/book/:id/:title")
-     .post(booksController.findById);
+     .post(booksController.findByTitle);
 
 router.route("/books-by-user/:id")
      .get(booksController.findAll);
+
+router.route(`/books/delete/:id`)
+     .delete(booksController.remove);
 
 module.exports = router;

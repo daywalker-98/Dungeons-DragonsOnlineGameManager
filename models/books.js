@@ -6,19 +6,25 @@ const booksSchema = new Schema({
      title:{
           type: String,
           trim: true,
+          unique: true,
           required: "Enter a book title."
      },
      id:{
           type: String,
           required: true
      },
-     decreeHistory:{
+     gameCode:{
+          type: String,
+          trim: true,
+          unique: true,
+     },
+     royalDecrees:{
           type: Object,
      },
-     playerCharacters:{
+     party:{
           type: Object
      },
-     npcs:{
+     NPCs:{
           type: Object
      },
      capIsSpecial:{

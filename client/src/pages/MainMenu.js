@@ -1,7 +1,9 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect, useState, useContext} from 'react';
 import API from "../utils/api";
+import {bookApiContext} from '../context/bookApiContext';
 
 function MainMenu(stfNthngs){
+     const [books, setBooks] = useContext(bookApiContext);
      // const [chars, setChars] = useState([]);
      const gameCodeBox = useRef();
      const gameNameBox = useRef();
@@ -9,29 +11,18 @@ function MainMenu(stfNthngs){
      
      useEffect(()=>{
           console.log(`useEffect(): success; userId: ${stfNthngs.userId}`);
+          retrieveBooks();
+     },[]);
+
+     function retrieveBooks(){
           API.getBooks(stfNthngs.userId).then(res=>{
                console.log(`API.getBooks(): success (results below ▼)`);
-               stfNthngs.setPlayerBooks(res.data);
-               // const books = res.data;
-               // console.log(books[0].title);
-               // console.log(books[1].title);
-               // let text = [{text:`Books:`}];
-               // for(let i = -1; i < books.length; i++){
-               //      if(books[i]){
-               //           text = [...text, {text : `Title: ${books[i].title}`}];
-               //           if(books[i].royalDecrees){
-               //                text = [...text, {text : `Entries: ${books[i].royalDecrees.length}`}];
-               //           } else {
-               //                text = [...text, {text : `Entries: 0`}];
-               //           }
-               //      } else {
-               //           text = [...text, {text : `-<>- -|> -|- <|- -<>-`}];
-               //      }
-               // }
+               console.log(res.data);
+               setBooks(res.data);
           }).catch(err=>{
                console.log(`API.getBooks() inside useEffect in MainMenu: ${err}`);
           });
-     },[]);
+     }
 
      function setGame(gameName, gameCode, charName){
           stfNthngs.setGame(gameName, gameCode, charName);
@@ -52,15 +43,19 @@ function MainMenu(stfNthngs){
                     <div>
                          <div>
                               <label>Set game:</label>
-                              {stfNthngs.books ? stfNthngs.books.map((book, index)=>{
+                              {books ? books.map((book, index)=>{
                                    return (
                                    <div key={index}>
                                         <div className={book.title}>
                                              <button onClick={(e)=>{
                                                        e.preventDefault();
-                                                       setGame(book.title, gameCodeBox.current.value, "Dungeon Master");
+                                                       setGame(book.title, gameCodeBox.current.value, "Dungeon Master", book);
                                              }}>{book.title}</button>
-                                             <button>del</button>
+                                             <button onClick={(e)=>{
+                                                  e.preventDefault();
+                                                  API.deleteBook(book._id);
+                                                  retrieveBooks();
+                                             }} >del</button>
                                         </div>
                                         <br />
                                    </div>);
@@ -69,7 +64,7 @@ function MainMenu(stfNthngs){
                          <p>Start new game:</p>
                          <input ref={gameNameBox} />
                     </div>
-                    <button onClick={()=>setGame(gameNameBox.current.value, gameCodeBox.current.value, "Dungeon Master")}>Start</button>
+                    <button onClick={()=>setGame(gameNameBox.current.value, gameCodeBox.current.value, "Dungeon Master", {})}>Start</button>
                </div>
                : stfNthngs.isDM === "player" ?
                <div>

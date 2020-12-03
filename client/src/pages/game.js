@@ -18,7 +18,7 @@ function Game(stfNthngs){
                     <GameInstructions />
                </div>
                <div className="col-md-4 col-sm-12">
-                    {stfNthngs.isDM === true ? <RenderDungeon setGameName={(v)=>stfNthngs.setGameName(v)} gameName={stfNthngs.gameName} userId={stfNthngs.userId}  userObj={stfNthngs.userObj} className="parchment"/> : stfNthngs.isDM === "player" ? <RenderPlayer userId={stfNthngs.userId} userObj={stfNthngs.userObj} charName={stfNthngs.charName} className="parchment"/> : <div>Something went wrong. Please reload the site and rejoin the game. If this error persists, notify us at dribbleGribble0516@gmail.com.</div>}
+                    {stfNthngs.isDM === true ? <RenderDungeon setGameName={(v)=>stfNthngs.setGameName(v)} gameName={stfNthngs.gameName} gameCode={stfNthngs.gameCode} userId={stfNthngs.userId}  userObj={stfNthngs.userObj} className="parchment"/> : stfNthngs.isDM === "player" ? <RenderPlayer userId={stfNthngs.userId} gameCode={stfNthngs.gameCode} userObj={stfNthngs.userObj} charName={stfNthngs.charName} className="parchment"/> : <div>Something went wrong. Please reload the site and rejoin the game. If this error persists, notify us at dribbleGribble0516@gmail.com.</div>}
                </div>
                <div className="col-md-4 col-sm-12">
                     <GameMessages charName={stfNthngs.charName} username={stfNthngs.username} userId={stfNthngs.userId}/>

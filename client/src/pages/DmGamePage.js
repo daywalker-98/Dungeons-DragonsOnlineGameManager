@@ -1,25 +1,69 @@
-import React, {useRef, useEffect, useState} from "react";
+import React, {useRef, useEffect, useState, useContext} from "react";
 // import { books } from "../../../models";
 import API from "../utils/api";
+import {bookApiContext} from '../context/bookApiContext';
 
 function RenderDungeon(stfNthngs){
-     const [MasterBook, setMasterBook] = useState(stfNthngs.books);
+     const [books, setBooks] = useContext(bookApiContext);
+     const [bookIndex, setBookIndex] = useState();
      const [royalDecrees, setRoyalDecrees] = useState([]);
      const [party, setParty] = useState([]);
      const [NPCs, setNPCs] = useState([]);
      const [capIsSpecial, setCapSpecial] = useState([]);
      const decreeRef = useRef();
+     const decreesEndRef = useRef();
+
+
+
      useEffect(() => {
-          console.log(`Loading ${stfNthngs.gameName}`);
-          console.log(stfNthngs.books);
-          setTimeout(()=>{
-               if(stfNthngs.books){
-                    console.log(MasterBook);
-               } else {
-                    console.log(`Failed to load books.`);
+          API.getBooks(stfNthngs.userId).then(res=>{
+               console.log(`API.getBooks(): success (results below ▼)`);
+               console.log(res.data);
+               setBooks(res.data);
+               console.log(`Loading book: ${stfNthngs.gameName}`);
+               let i = 0;
+               function loadBook(i){
+                    if(books[i].title == stfNthngs.gameName){
+                         setTimeout(console.log(i), 1000);
+                         console.log(books);
+                         console.log(books[i]);
+                         setTimeout(()=>{
+                              if(books){
+                                   setBookIndex(i);
+                                   loadBookData(i);
+                                   // setInterval(setRoyalDecrees(books[stfNthngs.gameName].royalDecrees),1000);
+                              } else {
+                                   console.log(`Failed to load books.`);
+                                   saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName}, stfNthngs.gameName);
+                                   setBooks();
+                              }
+                         }, 1000);
+                    } else {
+                         if(i < books.length){
+                              i++;
+                              console.log(i);
+                              loadBook(i);
+                         } else {
+                              console.log(`Failed to load book.`);
+                         }
+                    }
+                    API.setGameCode(stfNthngs.gameCode, books[bookIndex]._id).then(res=>{
+                         console.log(res);
+                    }).catch(err=>{
+                         console.log(err);
+                    });
                }
-          }, 1000);
-     }, [stfNthngs.books]);
+               loadBook(i);
+          }).catch(err=>{
+               console.log(`API.getBooks() inside useEffect in DmGamePage: ${err}`);
+          });
+     }, [books]);
+
+     useEffect(scrollToBottom, [royalDecrees]);
+
+     function scrollToBottom(){
+          decreesEndRef.current.scrollIntoView({behavior:"smooth"});
+     }
 
      function capitalize(word){
           for(let i = 0; i < capIsSpecial.length; i++){
@@ -39,42 +83,35 @@ function RenderDungeon(stfNthngs){
           return wordStore.join("_");
      }
 
-     // function loadBook(title){
-          // API.getBook(id, title).then(res=>{
-          //      const book = res;
-          //      setMasterBook(res.data[0]);
-          // console.log(stfNthngs.books);
-          // setMasterBook(stfNthngs.books);
-          // setTimeout(console.log(MasterBook), 1000);
-          // console.log(`Game loaded.`);
-               // if(book.royalDecrees){
-               //      console.log(`royalDecrees set: ${console.log(book.royalDecrees)}`);
-               //      setRoyalDecrees(book.royalDecrees);
-               // } else {
-               //      console.log(`No royalDecrees set.`);
-               //      setRoyalDecrees([]);
-               // }
-               // if(book.NPCs){
-               //      console.log(`NPCs set: ${book.NPCs}`);
-               //      setNPCs(book.NPCs)
-               // } else {
-               //      console.log(`No NPCs set.`);
-               //      setNPCs([]);
-               // }
-               // if(book.party){
-               //      console.log(`Party set: ${book.party}`);
-               //      setParty(book.party);
-               // } else {
-               //      console.log(`No party members set.`);
-               //      setParty([]);
-               // }
-               // });
-     // }
+     function loadBookData(i){
+          if(books[i].royalDecrees){
+               setRoyalDecrees(books[i].royalDecrees);
+               setTimeout(console.log(`royalDecrees set: ${console.log(royalDecrees)}`), 1000);
+          } else {
+               console.log(`No royalDecrees set.`);
+               setRoyalDecrees([]);
+          }
+          if(books[i].NPCs){
+               setNPCs(books[i].NPCs);
+               setTimeout(console.log(`NPCs set: ${NPCs}`), 1000);
+          } else {
+               console.log(`No NPCs set.`);
+               setNPCs([]);
+          }
+          if(books[i].party){
+               console.log(`Party set: ${party}`);
+               setTimeout(setParty(books[i].party), 1000);
+          } else {
+               console.log(`No party members set.`);
+               setParty([]);
+          }
+          console.log(`Game loaded.`);
+     }
 
      
 
-     function saveBook(Book, title){
-          API.saveBook(Book, title).then(res=>{
+     function saveBook(Book, id){
+          API.saveBook(Book, id).then(res=>{
                console.log(`Success...?: ${JSON.stringify(res)}`);
           }).catch(err=>{
                console.log(err)
@@ -82,8 +119,8 @@ function RenderDungeon(stfNthngs){
           });
      }
 
-     function saveNewBook(MasterBook, title){
-          API.newBook(MasterBook, title).then(res=>{
+     function saveNewBook(Book, title){
+          API.newBook(Book, title).then(res=>{
                console.log(res);
           }).catch(err=>{
                console.log(err);
@@ -92,8 +129,9 @@ function RenderDungeon(stfNthngs){
 
      function addToRoyalDecrees(decreeObject){
           setRoyalDecrees(decreeObject);
-          setMasterBook({id:stfNthngs.userId, title:stfNthngs.gameName, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:royalDecrees});
-          setTimeout(saveBook(MasterBook, stfNthngs.title),400);
+          var saveThisBook = {_id: books[bookIndex]._id, id:stfNthngs.userId, title:stfNthngs.gameName, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:decreeObject};
+          console.log(saveThisBook);
+          setTimeout(saveBook(saveThisBook, ),1000);
      }
      
      function spellFailed(error){
@@ -229,8 +267,10 @@ function RenderDungeon(stfNthngs){
                                                                  case"capitalization":
                                                                  case"capitalization:":
                                                                       setCapSpecial({"cap":orignalDecree[3],"name":decreeArray[3]});
+                                                                      break;
                                                                  default:
                                                             }
+                                                            break;
                                                        default:
                                                   }
                                                   const value = `New player character: ${capitalize(newPlayer)}`;
@@ -341,9 +381,9 @@ function RenderDungeon(stfNthngs){
                          case"members":
                          case"members:":
                               let value=`Party members: `;
-                              if(party.length == 1){
+                              if(party.length === 1){
                                    value+=`Just ${capitalize(party[0].name)}...`;
-                              } else if (party.length == 2){
+                              } else if (party.length === 2){
                                    value+=`${capitalize(party[0].name)} and ${capitalize(party[1].name)}.`;
                               } else {
                                    for(let i = 0; i < party.length; i++){
@@ -502,6 +542,12 @@ function RenderDungeon(stfNthngs){
                               subject = party[i];
                          }
                     }
+                    let object;
+                    for(let i = 0; i < NPCs.length; i++){
+                         if(decreeArray[1] === party[i]){
+                              subject = party[i];
+                         }
+                    }
                     if(subject){
                          switch(decreeArray[2]){
                               case"attack":
@@ -509,7 +555,7 @@ function RenderDungeon(stfNthngs){
                               case"attacked":
                                    addToRoyalDecrees([...royalDecrees,
                                         {
-                                             "text":`${capitalize(subject)} attacked ` + "${capitalize(object)}"
+                                             "text":`${capitalize(subject)} attacked ${capitalize(object)}`
                                         }]);
                                    break;
                               default:
@@ -562,7 +608,7 @@ function RenderDungeon(stfNthngs){
                          let char;
                          let index = 0;
                          for(let i = index; i < party.length; i++){
-                              if(decreeArray[2] == party[i].name){
+                              if(decreeArray[2] === party[i].name){
                                    console.log(party[i]);
                                    char = decreeArray[2];
                                    index = i;
@@ -605,7 +651,7 @@ function RenderDungeon(stfNthngs){
                     let char;
                     let index;
                     for(let i = 0; i < party.length; i++){
-                         if(decreeArray[0] == party[i].name){
+                         if(decreeArray[0] === party[i].name){
                               char = true;
                               index = i;
                          }
@@ -728,24 +774,25 @@ function RenderDungeon(stfNthngs){
           <div className="scroll-container">
                <h1 className="scroll-heading">Decree Scroll</h1>
                <div className="decree-scroll">
-               {royalDecrees ? royalDecrees.map((decree, index)=>{
-                    if(index >= royalDecrees.length-30)
-                         return(
-                              <div key={index}>
-                                   <p className="text-align-left">{decree.text}</p>
-                                   {decree.value ? decree.value.map((value)=>{
-                                        return(
-                                             <div>
-                                                  {value}
-                                             </div>
-                                        );
-                                   }) : <p></p>}
-                              </div>
-                         )
-                    else {
-                         return null;
-                    }
-               }): <div></div>}
+                    {royalDecrees ? royalDecrees.map((decree, index)=>{
+                         if(index >= royalDecrees.length-30)
+                              return(
+                                   <div key={index}>
+                                        <p className="text-align-left">{decree.text}</p>
+                                        {decree.value ? decree.value.map((value)=>{
+                                             return(
+                                                  <div>
+                                                       {value}
+                                                  </div>
+                                             );
+                                        }) : <p></p>}
+                                   </div>
+                              )
+                         else {
+                              return null;
+                         }
+                    }): null}
+                    <div ref={decreesEndRef}></div>
                </div>
                <form onSubmit={submitDecree}>
                     <input className="col-12 decree-box" name="DecreeBox" ref={decreeRef} />
