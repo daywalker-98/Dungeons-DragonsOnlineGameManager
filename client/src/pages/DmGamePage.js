@@ -5,73 +5,38 @@ import {bookApiContext} from '../context/bookApiContext';
 
 function RenderDungeon(stfNthngs){
      const [books, setBooks] = useContext(bookApiContext);
-     const [bookIndex, setBookIndex] = useState();
      const [royalDecrees, setRoyalDecrees] = useState([]);
-     const [party, setParty] = useState([]);
      const [NPCs, setNPCs] = useState([]);
-     const [capIsSpecial, setCapSpecial] = useState([]);
      const decreeRef = useRef();
      const decreesEndRef = useRef();
 
-
-
      useEffect(() =>{
-          loadBooks();
-     }, [stfNthngs]);
+          loadBook(0);
+     }, [books]);
 
-     function loadBooks(){
-          API.getBooks(stfNthngs.userId).then(res=>{
-               console.log(`API.getBooks(): success (results below ▼)`);
-               console.log(res.data);
-               setBooks(res.data);
-               console.log(`Loading book: ${stfNthngs.gameName}`);
-               let i = 0;
-               function loadBook(i){
-                    if(books[i]){
-                         if(books[i].title == stfNthngs.gameName){
-                              setTimeout(console.log(i), 1000);
-                              setTimeout(()=>{
-                                   if(books){
-                                        console.log(i);
-                                        setBookIndex(i);
-                                        loadBookData(i);
-                                        // setInterval(setRoyalDecrees(books[stfNthngs.gameName].royalDecrees),1000);
-                                   } else {
-                                        console.log(`Failed to load books.`);
-                                        saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName}, stfNthngs.gameName);
-                                        loadBook();
-                                   }
-                              }, 1000);
-                         }else{
-                              if(i < books.length){
-                                   console.log(i);
-                                   i++;
-                                   loadBook(i);
-                              }else{
-                                   console.log(`Failed to load books.
-                                   at if(books[i].title == stfNthngs.gameName){
-                                   }else{`);
-                              }
-                         }
-                    }
-                    else{
-                         if(i < books.length){
-                              console.log(i);
-                              i++;
-                              loadBook(i);
-                         } else {
-                              console.log(`Failed to load book.
-                              at if(books[i]){
-                              }else{`);
-                              saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName, gameCode:stfNthngs.gameCode}, stfNthngs.gameName);
-                         }
+     function loadBook(i){
+          // console.log(books);
+          if(books[i]){
+               if(books[i].title == stfNthngs.gameName){
+                    setTimeout(()=>{
+                         setTimeout(console.log(`setBookIndex(${i})`), 1000);
+                         stfNthngs.setBookIndex(i);
+                         loadBookData(i);
+                    }, 1000);
+               }else{
+                    if(i < books.length){
+                         console.log(i);
+                         i++;
+                         loadBook(i);
+                    } else {
+                         console.log(`Failed to load book.`);
+                         saveNewBook({id:stfNthngs.userId, title:stfNthngs.gameName, gameCode:stfNthngs.gameCode}, stfNthngs.gameName);
                     }
                }
-               loadBook(i);
-          }).catch(err=>{
-               console.log(`Error in API.getBooks() at loadBooks()`);
-               console.log(err);
-          });
+          }else{
+               console.log(`err`);
+               console.log(books);
+          }
      }
 
      useEffect(scrollToBottom, [royalDecrees]);
@@ -81,9 +46,9 @@ function RenderDungeon(stfNthngs){
      }
 
      function capitalize(word){
-          for(let i = 0; i < capIsSpecial.length; i++){
-               if(capIsSpecial[i].name === word){
-                    return capIsSpecial[i].cap;
+          for(let i = 0; i < stfNthngs.capIsSpecial.length; i++){
+               if(stfNthngs.capIsSpecial[i].name === word){
+                    return stfNthngs.capIsSpecial[i].cap;
                }
           }
           word = word.split("_");
@@ -99,7 +64,7 @@ function RenderDungeon(stfNthngs){
      }
 
      function loadBookData(i){
-          console.log(books[i]);
+          // console.log(books[i]);
           if(books[i].royalDecrees){
                setRoyalDecrees(books[i].royalDecrees);
                setTimeout(()=>{
@@ -121,15 +86,26 @@ function RenderDungeon(stfNthngs){
                setNPCs([]);
           }
           if(books[i].party){
-               setParty(books[i].party);
+               stfNthngs.setParty(books[i].party);
                setTimeout(()=>{
                     console.log(`Party set:`);
-                    console.log(party);
-                    console.log(`Game loaded.`);
+                    console.log(stfNthngs.party);
                }, 1000);
           } else {
                console.log(`No party members set.`);
-               setParty([]);
+               stfNthngs.setParty([]);
+          }
+          if(books[i].messages){
+               stfNthngs.setMessages(books[i].messages);
+               setTimeout(() => {
+                    console.log(`Messages sent:`);
+                    console.log(stfNthngs.messages);
+                    console.log(books[i].messages);
+                    console.log(`Game loaded.`);
+               }, 1000);
+          } else {
+               console.log(`No messages sent.`);
+               stfNthngs.setMessages([]);
                console.log(`Game loaded.`);
           }
      }
@@ -146,7 +122,7 @@ function RenderDungeon(stfNthngs){
      function saveNewBook(Book, title){
           API.newBook(Book, title).then(res=>{
                console.log(res);
-               loadBooks();
+               // setTimeout(loadBooks(), 1000);
           }).catch(err=>{
                console.log(err);
           });
@@ -154,7 +130,7 @@ function RenderDungeon(stfNthngs){
 
      function addToRoyalDecrees(decreeObject){
           setRoyalDecrees(decreeObject);
-          var saveThisBook = {id:stfNthngs.userId, title:stfNthngs.gameName, party:party, NPCs:NPCs, capIsSpecial:capIsSpecial, royalDecrees:decreeObject};
+          var saveThisBook = {_id: books[stfNthngs.bookIndex]._id, id:stfNthngs.userId, title:stfNthngs.gameName, party:stfNthngs.party, NPCs:NPCs, capIsSpecial:stfNthngs.capIsSpecial, royalDecrees:decreeObject};
           console.log(saveThisBook);
           setTimeout(saveBook(saveThisBook, stfNthngs.userId),1000);
      }
@@ -272,7 +248,7 @@ function RenderDungeon(stfNthngs){
                                    case"character:":
                                         if(decreeArray[3]){
                                              const newPlayer = decreeArray[3];
-                                             if(party.includes(newPlayer)){
+                                             if(stfNthngs.party.includes(newPlayer)){
                                                   const value = `${capitalize(newPlayer)} is already a member of your party.`;
                                                   addToRoyalDecrees([...royalDecrees,
                                                        {
@@ -291,7 +267,7 @@ function RenderDungeon(stfNthngs){
                                                                  case"capitalize":
                                                                  case"capitalization":
                                                                  case"capitalization:":
-                                                                      setCapSpecial({"cap":orignalDecree[3],"name":decreeArray[3]});
+                                                                      stfNthngs.setCapSpecial({"cap":orignalDecree[3],"name":decreeArray[3]});
                                                                       break;
                                                                  default:
                                                             }
@@ -299,7 +275,7 @@ function RenderDungeon(stfNthngs){
                                                        default:
                                                   }
                                                   const value = `New player character: ${capitalize(newPlayer)}`;
-                                                  setParty([...party,
+                                                  stfNthngs.setParty([...stfNthngs.party,
                                                        {
                                                             "name":newPlayer
                                                        }
@@ -352,9 +328,9 @@ function RenderDungeon(stfNthngs){
                                    case"character":
                                    case"character:":
                                         const exitPlayer = decreeArray[3];
-                                        if(party.includes(exitPlayer)){
-                                             const index = party.indexOf(party);
-                                             party.splice(index, 1);
+                                        if(stfNthngs.party.includes(exitPlayer)){
+                                             const index = stfNthngs.party.indexOf(stfNthngs.party);
+                                             stfNthngs.party.splice(index, 1);
                                              const value = `${capitalize(exitPlayer)} has left the party.`;
                                              addToRoyalDecrees([...royalDecrees,
                                                   {
@@ -406,16 +382,16 @@ function RenderDungeon(stfNthngs){
                          case"members":
                          case"members:":
                               let value=`Party members: `;
-                              if(party.length === 1){
-                                   value+=`Just ${capitalize(party[0].name)}...`;
-                              } else if (party.length === 2){
-                                   value+=`${capitalize(party[0].name)} and ${capitalize(party[1].name)}.`;
+                              if(stfNthngs.party.length === 1){
+                                   value+=`Just ${capitalize(stfNthngs.party[0].name)}...`;
+                              } else if (stfNthngs.party.length === 2){
+                                   value+=`${capitalize(stfNthngs.party[0].name)} and ${capitalize(stfNthngs.party[1].name)}.`;
                               } else {
-                                   for(let i = 0; i < party.length; i++){
-                                        if(i === party.length-1){
-                                             value+=` and ${capitalize(party[i].name)}.`
+                                   for(let i = 0; i < stfNthngs.party.length; i++){
+                                        if(i === stfNthngs.party.length-1){
+                                             value+=` and ${capitalize(stfNthngs.party[i].name)}.`
                                         } else {
-                                             value+=`${capitalize(party[i].name)}, `;
+                                             value+=`${capitalize(stfNthngs.party[i].name)}, `;
                                         }
                                    }
                               }
@@ -462,18 +438,25 @@ function RenderDungeon(stfNthngs){
                                    case"text":
                                    case"text:":
                                         let value="Flavor: ";
-                                        decreeArray[3] = capitalize(decreeArray[3]);
-                                        for(let i = 3; i < decreeArray.length; i++){
-                                             for(let j = 0; j < party.length; j++){
-                                                  switch(decreeArray[i]){
-                                                       case party[j]:
-                                                            decreeArray[i] = capitalize(decreeArray[i]);
-                                                            break;
-                                                       default:
-                                                            const checkForPunc = decreeArray[i-1].split("");
-                                                            if(checkForPunc[checkForPunc.length-1] === "." || checkForPunc[checkForPunc.length-1] === "!" || checkForPunc[checkForPunc.length-1] === "?"){
+                                        value = capitalize(decreeArray[3]);
+                                        for(let i = 4; i < decreeArray.length; i++){
+                                             if(stfNthngs.party.length){
+                                                  for(let j = 0; j < stfNthngs.party.length; j++){
+                                                       switch(decreeArray[i]){
+                                                            case stfNthngs.party[j]:
                                                                  decreeArray[i] = capitalize(decreeArray[i]);
-                                                            }
+                                                                 break;
+                                                            default:
+                                                                 const checkForPunc = decreeArray[i-1].split("");
+                                                                 if(checkForPunc[checkForPunc.length-1] === "." || checkForPunc[checkForPunc.length-1] === "!" || checkForPunc[checkForPunc.length-1] === "?"){
+                                                                      decreeArray[i] = capitalize(decreeArray[i]);
+                                                                 }
+                                                       }
+                                                  }
+                                             } else {
+                                                  const checkForPunc = decreeArray[i-1].split("");
+                                                  if(checkForPunc[checkForPunc.length-1] === "." || checkForPunc[checkForPunc.length-1] === "!" || checkForPunc[checkForPunc.length-1] === "?"){
+                                                       decreeArray[i] = capitalize(decreeArray[i]);
                                                   }
                                              }
                                              value += ` ${decreeArray[i]}`;
@@ -562,15 +545,15 @@ function RenderDungeon(stfNthngs){
                case"action":
                case"action:":
                     let subject;
-                    for(let i = 0; i < party.length; i++){
-                         if(decreeArray[1] === party[i]){
-                              subject = party[i];
+                    for(let i = 0; i < stfNthngs.party.length; i++){
+                         if(decreeArray[1] === stfNthngs.party[i]){
+                              subject = stfNthngs.party[i];
                          }
                     }
                     let object;
                     for(let i = 0; i < NPCs.length; i++){
-                         if(decreeArray[1] === party[i]){
-                              subject = party[i];
+                         if(decreeArray[1] === stfNthngs.party[i]){
+                              subject = stfNthngs.party[i];
                          }
                     }
                     if(subject){
@@ -632,9 +615,9 @@ function RenderDungeon(stfNthngs){
                     if(value){
                          let char;
                          let index = 0;
-                         for(let i = index; i < party.length; i++){
-                              if(decreeArray[2] === party[i].name){
-                                   console.log(party[i]);
+                         for(let i = index; i < stfNthngs.party.length; i++){
+                              if(decreeArray[2] === stfNthngs.party[i].name){
+                                   console.log(stfNthngs.party[i]);
                                    char = decreeArray[2];
                                    index = i;
                               }
@@ -642,22 +625,22 @@ function RenderDungeon(stfNthngs){
                          if(char){
                               switch(dataType){
                                    case"health":
-                                        party[index].health = value;
+                                        stfNthngs.party[index].health = value;
                                         break;
                                    case"strength":
-                                        party[index].str = value;
+                                        stfNthngs.party[index].str = value;
                                         break;
                                    case"dexterity":
-                                        party[index].dex = value;
+                                        stfNthngs.party[index].dex = value;
                                         break;
                                    case"intelligence":
-                                        party[index].int = value;
+                                        stfNthngs.party[index].int = value;
                                         break;
                                    case"wisdon":
-                                        party[index].wis = value;
+                                        stfNthngs.party[index].wis = value;
                                         break;
                                    case"charisma":
-                                        party[index].cha = value;
+                                        stfNthngs.party[index].cha = value;
                                         break;
                                    default:
                               }
@@ -675,8 +658,8 @@ function RenderDungeon(stfNthngs){
                default:
                     let char;
                     let index;
-                    for(let i = 0; i < party.length; i++){
-                         if(decreeArray[0] === party[i].name){
+                    for(let i = 0; i < stfNthngs.party.length; i++){
+                         if(decreeArray[0] === stfNthngs.party[i].name){
                               char = true;
                               index = i;
                          }
@@ -686,13 +669,13 @@ function RenderDungeon(stfNthngs){
                               case"stats":
                               case"stats:":
                                    let text = [{text:`${capitalize(decreeArray[0])} stats:`}];
-                                   text = [...text, {text : `-Health: ${party[index].health}`}];
-                                   text = [...text, {text : `-STR: ${party[index].str}`}];
-                                   text = [...text, {text : `-DEX: ${party[index].dex}`}];
-                                   text = [...text, {text : `-CON: ${party[index].con}`}];
-                                   text = [...text, {text : `-INT: ${party[index].int}`}];
-                                   text = [...text, {text : `-WIS: ${party[index].wis}`}];
-                                   text = [...text, {text : `-CHA: ${party[index].cha}`}];
+                                   text = [...text, {text : `-Health: ${stfNthngs.party[index].health}`}];
+                                   text = [...text, {text : `-STR: ${stfNthngs.party[index].str}`}];
+                                   text = [...text, {text : `-DEX: ${stfNthngs.party[index].dex}`}];
+                                   text = [...text, {text : `-CON: ${stfNthngs.party[index].con}`}];
+                                   text = [...text, {text : `-INT: ${stfNthngs.party[index].int}`}];
+                                   text = [...text, {text : `-WIS: ${stfNthngs.party[index].wis}`}];
+                                   text = [...text, {text : `-CHA: ${stfNthngs.party[index].cha}`}];
                                    addToRoyalDecrees([...royalDecrees,
                                         ...text
                                    ]);
@@ -715,8 +698,8 @@ function RenderDungeon(stfNthngs){
                                                   case"capitalization.":
                                                   case"capitalisation.":
                                                        let index;
-                                                       for(let i = 0; i < capIsSpecial.length; i++){
-                                                            if(capIsSpecial[i].name === decreeArray[0]){
+                                                       for(let i = 0; i < stfNthngs.capIsSpecial.length; i++){
+                                                            if(stfNthngs.capIsSpecial[i].name === decreeArray[0]){
                                                                  index = i;
                                                             }
                                                        }
@@ -727,7 +710,7 @@ function RenderDungeon(stfNthngs){
                                                                       "text":value
                                                                  }]);
                                                        } else {
-                                                            setCapSpecial([...capIsSpecial,
+                                                            stfNthngs.setCapSpecial([...stfNthngs.capIsSpecial,
                                                                  {
                                                                       "name":decreeArray[0],
                                                                       "cap":orignalDecree[0]
@@ -751,13 +734,13 @@ function RenderDungeon(stfNthngs){
                                                             case"capitalization.":
                                                             case"capitalisation.":
                                                                  let index;
-                                                                 for(let i = 0; i < capIsSpecial.length; i++){
-                                                                      if(capIsSpecial[i].name === decreeArray[0]){
+                                                                 for(let i = 0; i < stfNthngs.capIsSpecial.length; i++){
+                                                                      if(stfNthngs.capIsSpecial[i].name === decreeArray[0]){
                                                                            index = i;
                                                                       }
                                                                  }
                                                                  if(index){
-                                                                      capIsSpecial.splice(index);
+                                                                      stfNthngs.capIsSpecial.splice(index);
                                                                       let value = `${capitalize(decreeArray[0])} has not special capitalization.`;
                                                                       addToRoyalDecrees([...royalDecrees,
                                                                            {
@@ -800,22 +783,21 @@ function RenderDungeon(stfNthngs){
                <h1 className="scroll-heading">Decree Scroll</h1>
                <div className="decree-scroll">
                     {royalDecrees ? royalDecrees.map((decree, index)=>{
-                         if(index >= royalDecrees.length-30)
-                              return(
-                                   <div key={index}>
+                         return(
+                              <div key={index}>
+                                   <br />
+                                   <div className="table rounded">
                                         <p className="text-align-left">{decree.text}</p>
-                                        {decree.value ? decree.value.map((value)=>{
+                                        {decree.value ? decree.value.map((value, subIndex)=>{
                                              return(
-                                                  <div>
+                                                  <div key={`${index}:${subIndex}`}>
                                                        {value}
                                                   </div>
                                              );
                                         }) : <p></p>}
                                    </div>
-                              )
-                         else {
-                              return null;
-                         }
+                              </div>
+                         )
                     }): null}
                     <div ref={decreesEndRef}></div>
                </div>

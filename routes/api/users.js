@@ -40,4 +40,10 @@ router.route("/books-by-user/:id")
 router.route(`/books/delete/:id`)
      .delete(booksController.remove);
 
+router.route(`/messages/send`)
+     .post(booksController.sendMessage);
+
+router.route(`/messages/get`)
+     .get(booksController.getMessages);
+
 module.exports = router;

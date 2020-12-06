@@ -35,5 +35,13 @@ export default{
 
      deleteBook: function(id){
           return axios.delete(`/api/dnd/books/delete/${id}`);
+     },
+
+     sendMessage: function(message){
+          return axios.post(`api/dnd/messages/send`, message);
+     },
+
+     getMessages: function(id){
+          return axios.get(`api/dnd/messages/get`, {_id:id});
      }
 }

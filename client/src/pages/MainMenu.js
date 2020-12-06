@@ -12,35 +12,54 @@ function MainMenu(stfNthngs){
      const charNameBox = useRef();
      
      useEffect(()=>{
-          console.log(`useEffect(): success; userId: ${stfNthngs.userId}`);
+          // console.log(`useEffect(): success; userId: ${stfNthngs.userId}`);
           retrieveBooks();
      },[]);
 
      function retrieveBooks(){
           API.getBooks(stfNthngs.userId).then(res=>{
-               console.log(`API.getBooks(): success (results below ▼)`);
-               console.log(res.data);
+               // console.log(`API.getBooks(): success (results below ▼)`);
+               // console.log(res.data);
                setBooks(res.data);
           }).catch(err=>{
                console.log(`API.getBooks() inside useEffect in MainMenu: ${err}`);
           });
      }
 
-     function setGame(gameName, gameCode, charName){
-          if(gameCode){
-               stfNthngs.setGame(gameName, gameCode, charName);
-               stfNthngs.setGameState(true);
-          }else{
+     function saveNewBook(Book, title){
+          API.newBook(Book, title).then(res=>{
+               console.log(res);
+               API.getBooks(stfNthngs.userId).then(res=>{
+                    // console.log(`API.getBooks(): success (results below ▼)`);
+                    // console.log(res.data);
+                    setBooks(res.data);
+               }).then(()=>{
+                    setGame(gameNameBox.current.value, gameCodeBox.current.value, "Dungeon Master");
+               }).catch(err=>{
+                    console.log(`API.getBooks() inside useEffect in MainMenu: ${err}`);
+               });
+          }).catch(err=>{
+               console.log(err);
+          });
+     }
+
+     function setGame(gameName, gameCode, charName, id){
+          if(gameCode && gameName){
+               API.setGameCode(gameCode, id).then(res=>{
+                    console.log(res);
+                    stfNthngs.setGame(gameName, gameCode, charName);
+                    stfNthngs.setGameState(true);
+               }).catch(err=>{
+                    console.log(err);
+               });
+          }else if(gameName){
                setMessage(`Please enter a game code.`);
                setGameCodeMessage(`Required field`);
                // messageTimeOut();
+          }else if(gameCode){
+               setMessage(`Please choose a game. If you would like to create a new game, enter the desired title below.`);
           }
      }
-
-     // function messageTimeOut(){
-     //      console.log(`messageTimeOut()`);
-     //      setTimeout(setMessage(`Enter desired game settings.`), 10000);
-     // }
 
      return(
           <div>
@@ -53,28 +72,28 @@ function MainMenu(stfNthngs){
                     <button onClick={()=>{
                          stfNthngs.changeDM(false)
                          setMessage(`Choose a game mode`);
+                         setGameCodeMessage(``);
                     }}>Back</button>
                     <div className="table">
                          <div>
-                              <label>Enter Game Code: {gameCodeMessage}</label>
+                              <label>Enter Game Code: <span className="text-danger">{gameCodeMessage}</span></label>
                          </div>
                          <input ref={gameCodeBox}/>
                     </div>
                     <div>
                          <div>
-                              <label>Set game:</label>
+                              {books ? <label>Set game:</label> : <div></div>}
                               {books ? books.map((book, index)=>{
                                    return (
                                    <div key={index}>
                                         <div className={book.title}>
                                              <button onClick={(e)=>{
                                                        e.preventDefault();
-                                                       setGame(book.title, gameCodeBox.current.value, "Dungeon Master", book);
+                                                       setGame(book.title, gameCodeBox.current.value, "Dungeon Master", book._id);
                                              }}>{book.title}</button>
                                              <button onClick={(e)=>{
                                                   e.preventDefault();
-                                                  API.deleteBook(book._id);
-                                                  retrieveBooks();
+                                                  API.deleteBook(book._id).then(setTimeout(retrieveBooks(), 2000));
                                              }} >del</button>
                                         </div>
                                         <br />
@@ -84,7 +103,9 @@ function MainMenu(stfNthngs){
                          <p>Start new game:</p>
                          <input ref={gameNameBox} />
                     </div>
-                    <button onClick={()=>setGame(gameNameBox.current.value, gameCodeBox.current.value, "Dungeon Master", {})}>Start</button>
+                    <button onClick={()=>{
+                         saveNewBook({id:stfNthngs.userId, title:gameNameBox.current.value, gameCode:gameCodeBox.current.value}, gameNameBox.current.value);
+                    }}>Start</button>
                </div>
                : stfNthngs.isDM === "player" ?
                <div>

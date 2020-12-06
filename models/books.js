@@ -14,8 +14,8 @@ const booksSchema = new Schema({
      },
      gameCode:{
           type: String,
-          trim: true
-          // unique: true,
+          trim: true,
+          unique: true,
      },
      royalDecrees:{
           type: Object,
@@ -27,6 +27,9 @@ const booksSchema = new Schema({
           type: Object
      },
      capIsSpecial:{
+          type: Object
+     },
+     messages:{
           type: Object
      }
 });
