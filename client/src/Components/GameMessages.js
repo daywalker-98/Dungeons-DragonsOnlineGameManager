@@ -12,13 +12,19 @@ function GameMessages(stfNthngs){
           console.log(text);
           text = parseMessage(text.split(` `));
           console.log(text);
-          API.sendMessage({gameId:books[stfNthngs.bookIndex]._id,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,text:text}).then(res=>{
+          var gameId;
+          if(stfNthngs.charName != "Dungeon Master"){
+               gameId = books._id
+          } else {
+               gameId = books[stfNthngs.bookIndex]._id
+          }
+          API.sendMessage({gameId:gameId,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,charName:stfNthngs.charName,text:text}).then(res=>{
                console.log(res);
-               console.log(books[stfNthngs.bookIndex]._id);
-               API.getMessages(books[stfNthngs.bookIndex]._id).then(res=>{
+               console.log(gameId);
+               API.getMessages(gameId).then(res=>{
                     console.log(res);
                     stfNthngs.setMessages([...stfNthngs.messages,
-                         {gameId:books[stfNthngs.bookIndex]._id,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,text:text}
+                         {gameId:gameId,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,charName:stfNthngs.charName,text:text}
                     ]);
                }).catch(err=>{
                     console.log(err);
@@ -34,21 +40,25 @@ function GameMessages(stfNthngs){
      // }, [stfNthngs.bookIndex]);
 
      function capitalize(word){
-          for(let i = 0; i < stfNthngs.capIsSpecial.length; i++){
-               if(stfNthngs.capIsSpecial[i].name === word){
-                    return stfNthngs.capIsSpecial[i].cap;
+          if(word == "i"){
+               return capitalize(word);
+          } else {
+               for(let i = 0; i < stfNthngs.capIsSpecial.length; i++){
+                    if(stfNthngs.capIsSpecial[i].name === word){
+                         return stfNthngs.capIsSpecial[i].cap;
+                    }
                }
+               word = word.split("_");
+               let wordStore=[];
+               let wordFragment;
+               for(let i = 0; i < word.length; i++){
+                    wordFragment = word[i].split("");
+                    wordFragment[0] = wordFragment[0].toUpperCase();
+                    wordFragment = wordFragment.join("");
+                    wordStore.push(wordFragment);
+               }
+               return wordStore.join("_");
           }
-          word = word.split("_");
-          let wordStore=[];
-          let wordFragment;
-          for(let i = 0; i < word.length; i++){
-               wordFragment = word[i].split("");
-               wordFragment[0] = wordFragment[0].toUpperCase();
-               wordFragment = wordFragment.join("");
-               wordStore.push(wordFragment);
-          }
-          return wordStore.join("_");
      }
 
      function parseMessage(array){
@@ -104,7 +114,7 @@ function GameMessages(stfNthngs){
                                         <div className="col-6 table">
                                              <p className="text-align-right">{message.text}</p>
                                         </div> */}
-                                        <p className="text-align-left">{message.senderUsername} ({stfNthngs.charName})</p>
+                                        <p className="text-align-left">{message.senderUsername} {message.charName?<span>({message.charName})</span>: <p></p>}</p>
                                         <div>
                                              {message.text}
                                         </div>
@@ -115,7 +125,7 @@ function GameMessages(stfNthngs){
                <div ref={messagesEndRef}></div>
                </div>
                <form onSubmit={submitMessage}>
-                    <input className="col-12 decree-box" name="DecreeBox" ref={messageRef} />
+                    <input placeholder="Send messages here" className="col-12 decree-box" name="DecreeBox" ref={messageRef} />
                </form>
           </div>
      );

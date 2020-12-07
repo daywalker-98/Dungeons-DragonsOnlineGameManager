@@ -22,7 +22,7 @@ module.exports = {
      },
      findByTitle: function(req, res){
           db.books
-               .find({title:req.params.title})
+               .find({title:req.body.title})
                .then(dbModel=>res.json(dbModel))
                .catch(err=>{
                     console.log(err);
@@ -77,6 +77,21 @@ module.exports = {
                .then(dbModel=>res.json(dbModel))
                .catch(err=>{
                     // console.log(err);
+                    res.status(422).json(err)
+               });
+     },
+     findByCodeAndTitle: function(req, res){
+          db.books
+               .findOne({gameCode:req.params.gameCode, title:req.params.title})
+               .then(dbModel=>{
+                    // if(dbModel[0]){
+                    //      console.log(`success`);
+                    // }else{
+                         res.json(dbModel)
+                    // }
+               })
+               .catch(err=>{
+                    console.log(err);
                     res.status(422).json(err)
                });
      }

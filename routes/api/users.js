@@ -46,4 +46,7 @@ router.route(`/messages/send`)
 router.route(`/messages/get`)
      .get(booksController.getMessages);
 
+router.route(`/books/getGameByCode/:gameCode/:title`)
+     .get(booksController.findByCodeAndTitle);
+
 module.exports = router;

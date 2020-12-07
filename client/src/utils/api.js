@@ -17,6 +17,10 @@ export default{
           return axios.post(`/api/dnd/books/gameCode`, {gameCode:gameCode,_id:id});
      },
 
+     getGameByGameCode: function(gameCode, title){
+          return axios.get(`/api/dnd/books/getGameByCode/${gameCode}/${title}`);
+     },
+
      saveBook: function(book, id){
           return axios.post(`/api/dnd/books/save/:${id}`, book);
      },

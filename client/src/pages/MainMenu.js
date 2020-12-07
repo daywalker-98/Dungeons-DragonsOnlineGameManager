@@ -44,20 +44,43 @@ function MainMenu(stfNthngs){
      }
 
      function setGame(gameName, gameCode, charName, id){
-          if(gameCode && gameName){
-               API.setGameCode(gameCode, id).then(res=>{
-                    console.log(res);
-                    stfNthngs.setGame(gameName, gameCode, charName);
-                    stfNthngs.setGameState(true);
-               }).catch(err=>{
-                    console.log(err);
-               });
-          }else if(gameName){
-               setMessage(`Please enter a game code.`);
-               setGameCodeMessage(`Required field`);
-               // messageTimeOut();
-          }else if(gameCode){
-               setMessage(`Please choose a game. If you would like to create a new game, enter the desired title below.`);
+          if(stfNthngs.isDM === true){
+               if(gameCode && gameName){
+                    API.setGameCode(gameCode, id).then(res=>{
+                         console.log(res);
+                         stfNthngs.setGame(gameName, gameCode, charName);
+                         stfNthngs.setGameState(true);
+                    }).catch(err=>{
+                         console.log(err);
+                    });
+               }else if(gameName){
+                    setMessage(`Please enter a game code.`);
+                    setGameCodeMessage(`Required field`);
+                    // messageTimeOut();
+               }else if(gameCode){
+                    setMessage(`Please choose a game. If you would like to create a new game, enter the desired title below.`);
+               }
+          }else{
+               if(gameCode && gameName){
+                    console.log(`${gameCode} & ${gameName}`);
+                    API.getGameByGameCode(gameCode, gameName).then(res=>{
+                         console.log(res.data);
+                         setBooks(res.data);
+                         stfNthngs.setGame(gameName, gameCode, charName);
+                         stfNthngs.setGameState(true);
+                    }).then(()=>{
+                         console.log(books);
+                    }).catch(err=>{
+                         console.log(err);
+                    });
+               }else if(gameName){
+                    setMessage(`Please enter a game code.`);
+                    setGameCodeMessage(`Required field`);
+               }else if(gameCode){
+                    setMessage(`Please enter the desired title of the game you are joining below.`);
+               }else{
+                    setMessage(`Please enter the title and code for the game you would like to join below.`);
+               }
           }
      }
 
@@ -112,11 +135,12 @@ function MainMenu(stfNthngs){
                     <button onClick={()=>{
                          stfNthngs.changeDM(false)
                          setMessage(`Choose a game mode`);
+                         setGameCodeMessage(``);
                     }}>Back</button>
                     <form className="table" onSubmit={()=>setGame()}>
                          <div>
                               <div>
-                                   <label>Enter Game Code:</label>
+                                   <label>Enter Game Code: {gameCodeMessage}</label>
                               </div>
                               <input ref={gameCodeBox}/>
                          </div>
@@ -129,8 +153,8 @@ function MainMenu(stfNthngs){
                          <div>
                               <div>
                                    <label>Choose your character:</label>
-                                   <input ref={charNameBox}/>
                               </div>
+                              <input ref={charNameBox}/>
                          </div>
                     </form>
                     <button onClick={()=>setGame(gameNameBox.current.value, gameCodeBox.current.value, charNameBox.current.value)}>Start game</button>

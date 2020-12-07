@@ -13,8 +13,6 @@ import API from "./utils/api";
 import GameInstructions from "./Components/GameInstructions";
 
 function App() {
-  const loginButtonRef = useRef();
-  const logoutButtonRef = useRef();
   const screenNameBox = useRef();
   const {user, isAuthenticated} = useAuth0();
   const [account, setAccount] = useState([]);
@@ -58,14 +56,6 @@ function App() {
     }
   }, [isAuthenticated])
 
-  useEffect(()=>{
-    if(isAuthenticated){
-      logoutButtonRef.focus();
-    }else{
-      loginButtonRef.focus();
-    }
-  }, [gameState]);
-
   function changeScreenName(e){
     e.preventDefault();
     API.setScreenName(user.sub, {
@@ -96,7 +86,7 @@ function App() {
     <div className="App table">
         <Header className="table">
           <img className="top rounded" src={logo}  alt="logo" height={75}/>
-          {isAuthenticated ? <LogoutButton ref={logoutButtonRef} className="scroll" />: <LoginButton ref={loginButtonRef} className="scroll"/>}
+          {isAuthenticated ? <LogoutButton className="scroll" /> : <LoginButton className="scroll"/>}
           <p>{username}</p>
           {isAuthenticated ?
           <form onSubmit={changeScreenName}>

@@ -1,5 +1,4 @@
 import React, {useRef, useEffect, useState, useContext} from "react";
-// import { books } from "../../../models";
 import API from "../utils/api";
 import {bookApiContext} from '../context/bookApiContext';
 
@@ -12,6 +11,9 @@ function RenderDungeon(stfNthngs){
 
      useEffect(() =>{
           loadBook(0);
+          setTimeout(() => {  
+               window.scrollBy(0, -5);
+          }, 1000);
      }, [books]);
 
      function loadBook(i){
@@ -802,7 +804,7 @@ function RenderDungeon(stfNthngs){
                     <div ref={decreesEndRef}></div>
                </div>
                <form onSubmit={submitDecree}>
-                    <input className="col-12 decree-box" name="DecreeBox" ref={decreeRef} />
+                    <input placeholder="Recite spells here" className="col-12 decree-box" name="DecreeBox" ref={decreeRef} />
                </form>
           </div>
      );

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import RenderPlayer from "./playerContainer";
+import RenderPlayer from "./Player/CharGamePage";
 import RenderDungeon from "./DmGamePage";
 import GameInstructions from "../Components/GameInstructions";
 import GameMessages from "../Components/GameMessages";
@@ -22,7 +22,9 @@ function Game(stfNthngs){
                     <GameInstructions />
                </div>
                <div className="col-md-4 col-sm-12">
-                    {stfNthngs.isDM === true ? <RenderDungeon bookIndex={bookIndex} setBookIndex={(v)=>{setBookIndex(v)}} setGameName={(v)=>stfNthngs.setGameName(v)} gameName={stfNthngs.gameName} gameCode={stfNthngs.gameCode} userId={stfNthngs.userId}  userObj={stfNthngs.userObj} party={party} setParty={(v)=>setParty(v)} capIsSpecial={capIsSpecial} setCapSpecial={(v)=>setCapSpecial(v)} setMessages={(v)=>setMessages(v)} className="parchment"/> : stfNthngs.isDM === "player" ? <RenderPlayer userId={stfNthngs.userId} gameCode={stfNthngs.gameCode} userObj={stfNthngs.userObj} charName={stfNthngs.charName} className="parchment"/> : <div>Something went wrong. Please reload the site and rejoin the game. If this error persists, notify us at dribbleGribble0516@gmail.com.</div>}
+                    {stfNthngs.isDM === true ? <RenderDungeon bookIndex={bookIndex} setBookIndex={(v)=>{setBookIndex(v)}} setGameName={(v)=>stfNthngs.setGameName(v)} gameName={stfNthngs.gameName} gameCode={stfNthngs.gameCode} userId={stfNthngs.userId} userObj={stfNthngs.userObj} party={party} setParty={(v)=>setParty(v)} capIsSpecial={capIsSpecial} setCapSpecial={(v)=>setCapSpecial(v)} setMessages={(v)=>setMessages(v)} className="parchment"/>
+                    :
+                    stfNthngs.isDM === "player" ? <RenderPlayer bookIndex={bookIndex} setBookIndex={(v)=>{setBookIndex(v)}} setGameName={(v)=>stfNthngs.setGameName(v)} userId={stfNthngs.userId} gameName={stfNthngs.gameName} gameCode={stfNthngs.gameCode} userObj={stfNthngs.userObj} setParty={(v)=>setParty(v)} capIsSpecial={capIsSpecial} setMessages={(v)=>setMessages(v)} charName={stfNthngs.charName} className="parchment"/> : <div>Something went wrong. Please reload the site and rejoin the game. If this error persists, notify us at dribbleGribble0516@gmail.com.</div>}
                </div>
                <div className="col-md-4 col-sm-12">
                     <GameMessages messages={messages} setMessages={(v)=>setMessages(v)} bookIndex={bookIndex} party={party} capIsSpecial={capIsSpecial} charName={stfNthngs.charName} username={stfNthngs.username} userId={stfNthngs.userId}/>
