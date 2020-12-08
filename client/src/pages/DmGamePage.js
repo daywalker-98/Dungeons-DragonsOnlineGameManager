@@ -11,9 +11,6 @@ function RenderDungeon(stfNthngs){
 
      useEffect(() =>{
           loadBook(0);
-          setTimeout(() => {  
-               window.scrollBy(0, -5);
-          }, 1000);
      }, [books]);
 
      function loadBook(i){
@@ -110,6 +107,9 @@ function RenderDungeon(stfNthngs){
                stfNthngs.setMessages([]);
                console.log(`Game loaded.`);
           }
+          setTimeout(() => {  
+               stfNthngs.retrieveMessages(i);
+          }, 1000);
      }
 
      function saveBook(Book, id){

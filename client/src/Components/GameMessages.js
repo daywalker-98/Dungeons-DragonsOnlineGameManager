@@ -9,23 +9,16 @@ function GameMessages(stfNthngs){
      function submitMessage(e){
           e.preventDefault();
           var text = messageRef.current.value.toLowerCase();
-          console.log(text);
           text = parseMessage(text.split(` `));
-          console.log(text);
           var gameId;
-          if(stfNthngs.charName != "Dungeon Master"){
+          if(stfNthngs.isDM == "player"){
                gameId = books._id
-          } else {
+          } else if(stfNthngs.isDM === true){
                gameId = books[stfNthngs.bookIndex]._id
           }
           API.sendMessage({gameId:gameId,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,charName:stfNthngs.charName,text:text}).then(res=>{
-               console.log(res);
-               console.log(gameId);
                API.getMessages(gameId).then(res=>{
-                    console.log(res);
-                    stfNthngs.setMessages([...stfNthngs.messages,
-                         {gameId:gameId,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,charName:stfNthngs.charName,text:text}
-                    ]);
+                    stfNthngs.setMessages(res.data[0].messages);
                }).catch(err=>{
                     console.log(err);
                });
@@ -35,13 +28,9 @@ function GameMessages(stfNthngs){
           messageRef.current.value = "";
      }
 
-     // useEffect(()=>{
-     //      stfNthngs.setMessages(books[stfNthngs.bookIndex].messages);
-     // }, [stfNthngs.bookIndex]);
-
      function capitalize(word){
           if(word == "i"){
-               return capitalize(word);
+               return word.toUpperCase();
           } else {
                for(let i = 0; i < stfNthngs.capIsSpecial.length; i++){
                     if(stfNthngs.capIsSpecial[i].name === word){

@@ -63,16 +63,18 @@ function MainMenu(stfNthngs){
           }else{
                if(gameCode && gameName){
                     console.log(`${gameCode} & ${gameName}`);
-                    API.getGameByGameCode(gameCode, gameName).then(res=>{
-                         console.log(res.data);
-                         setBooks(res.data);
-                         stfNthngs.setGame(gameName, gameCode, charName);
-                         stfNthngs.setGameState(true);
-                    }).then(()=>{
-                         console.log(books);
-                    }).catch(err=>{
-                         console.log(err);
-                    });
+                    setTimeout(() => {
+                         API.getGameByGameCode(gameCode, gameName).then(res=>{
+                              console.log(res.data);
+                              setBooks(res.data);
+                              stfNthngs.setGame(gameName, gameCode, charName);
+                              stfNthngs.setGameState(true);
+                         }).then(()=>{
+                              console.log(books);
+                         }).catch(err=>{
+                              console.log(err);
+                         });
+                    }, 10000);
                }else if(gameName){
                     setMessage(`Please enter a game code.`);
                     setGameCodeMessage(`Required field`);

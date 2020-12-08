@@ -79,6 +79,9 @@ function RenderAdventure(stfNthngs){
                stfNthngs.setMessages([]);
                console.log(`Game loaded.`);
           }
+          setTimeout(() => {
+               stfNthngs.retrieveMessages();  
+          }, 1000);
      }
 
      function saveNewBook(Book, title){
