@@ -15,7 +15,7 @@ const booksSchema = new Schema({
      gameCode:{
           type: String,
           trim: true,
-          unique: true,
+          unique: true
      },
      royalDecrees:{
           type: Object,

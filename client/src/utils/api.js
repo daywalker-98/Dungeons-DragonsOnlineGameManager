@@ -45,7 +45,7 @@ export default{
           return axios.post(`api/dnd/messages/send`, message);
      },
 
-     getMessages: function(id){
-          return axios.get(`api/dnd/messages/get`, {_id:id});
+     getMessages: function(id, title){
+          return axios.get(`api/dnd/messages/get`, {_id:id, title:title});
      }
 }

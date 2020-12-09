@@ -12,13 +12,16 @@ function GameMessages(stfNthngs){
           text = parseMessage(text.split(` `));
           var gameId;
           if(stfNthngs.isDM == "player"){
-               gameId = books._id
+               gameId = books._id;
           } else if(stfNthngs.isDM === true){
-               gameId = books[stfNthngs.bookIndex]._id
+               gameId = books[stfNthngs.bookIndex]._id;
           }
           API.sendMessage({gameId:gameId,senderId:stfNthngs.userId,senderUsername:stfNthngs.username,charName:stfNthngs.charName,text:text}).then(res=>{
                API.getMessages(gameId).then(res=>{
-                    stfNthngs.setMessages(res.data[0].messages);
+                    console.log(res.data);
+                    if(res.data[0].messages != stfNthngs.setMessages){
+                         stfNthngs.setMessages(res.data[0].messages);
+                    }
                }).catch(err=>{
                     console.log(err);
                });
@@ -84,7 +87,9 @@ function GameMessages(stfNthngs){
           return message;
      }
 
-     useEffect(scrollToBottom, [stfNthngs.messages]);
+     useEffect(()=>{
+          scrollToBottom();
+     }, [stfNthngs.messages]);
 
      function scrollToBottom(){
           messagesEndRef.current.scrollIntoView({behavior:"smooth"});
@@ -103,7 +108,7 @@ function GameMessages(stfNthngs){
                                         <div className="col-6 table">
                                              <p className="text-align-right">{message.text}</p>
                                         </div> */}
-                                        <p className="text-align-left">{message.senderUsername} {message.charName?<span>({message.charName})</span>: <p></p>}</p>
+                                        <p className="text-align-left">{message.senderUsername} {message.charName?<span>({message.charName})</span>: <span></span>}</p>
                                         <div>
                                              {message.text}
                                         </div>

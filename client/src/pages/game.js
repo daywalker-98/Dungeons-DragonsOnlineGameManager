@@ -17,13 +17,22 @@ function Game(stfNthngs){
      function retrieveMessages(i){
           setInterval(()=>{
                var gameId;
+               var title;
                if(stfNthngs.isDM == "player"){
-                    gameId = books._id
+                    gameId = books._id;
+                    title = books.title;
+                    console.log(gameId);
                } else if(stfNthngs.isDM == true){
                     gameId = books[i]._id;
+                    title = books[i].title
+                    console.log(gameId);
                }
-               API.getMessages(gameId).then(res=>{
-                    setMessages(res.data[0].messages);
+               API.getMessages(gameId, title).then(res=>{
+                    if(res.data.messages != messages){
+                         setMessages(res.data.messages);
+                    } else {
+                         console.log(res.data.messages);
+                    }
                }).catch(err=>{
                     console.log(err);
                });

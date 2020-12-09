@@ -3,6 +3,7 @@ import API from "../utils/api";
 import {bookApiContext} from '../context/bookApiContext';
 
 function MainMenu(stfNthngs){
+     const [messageIndex, setMessageIndex] = useState(0);
      const [message, setMessage] = useState(`Choose a game mode`);
      const [gameCodeMessage, setGameCodeMessage] = useState()
      const [books, setBooks] = useContext(bookApiContext);
@@ -52,29 +53,43 @@ function MainMenu(stfNthngs){
                          stfNthngs.setGameState(true);
                     }).catch(err=>{
                          console.log(err);
+                         if(message == `This game code is already in use by another game. Please Try again.`){
+                              var newMessageIndex = parseInt(messageIndex) + 1;
+                              setMessageIndex(newMessageIndex);
+                         } else {
+                              setMessage(`This game code is already in use by another game. Please Try again.`);
+                         }
                     });
                }else if(gameName){
                     setMessage(`Please enter a game code.`);
                     setGameCodeMessage(`Required field`);
                     // messageTimeOut();
                }else if(gameCode){
-                    setMessage(`Please choose a game. If you would like to create a new game, enter the desired title below.`);
+                    if(message == `Please choose a game. If you would like to create a new game, enter the desired title below.`){
+                         var newIndex = parseInt(messageIndex) + 1;
+                         setMessageIndex(newIndex);
+                    }else{
+                         setMessage(`Please choose a game. If you would like to create a new game, enter the desired title below.`);
+                    }
                }
           }else{
                if(gameCode && gameName){
-                    console.log(`${gameCode} & ${gameName}`);
-                    setTimeout(() => {
-                         API.getGameByGameCode(gameCode, gameName).then(res=>{
-                              console.log(res.data);
+                    API.getGameByGameCode(gameCode, gameName).then(res=>{
+                         if (res.data){
                               setBooks(res.data);
                               stfNthngs.setGame(gameName, gameCode, charName);
                               stfNthngs.setGameState(true);
-                         }).then(()=>{
-                              console.log(books);
-                         }).catch(err=>{
-                              console.log(err);
-                         });
-                    }, 10000);
+                         }else{
+                              if(message == `Game code invalid. Please try again. (Game codes can have any number of spaces or special characters, so be sure the DM is sending you all characters from the game code, including spaces)`){
+                                   var newIndex = parseInt(messageIndex) + 1;
+                                   setMessageIndex(newIndex);
+                              } else {
+                                   setMessage(`Game code invalid. Please try again. (Game codes can have any number of spaces or special characters, so be sure the DM is sending you all characters from the game code, including spaces)`);
+                              }
+                         }
+                    }).catch(err=>{
+                         console.log(err);
+                    });
                }else if(gameName){
                     setMessage(`Please enter a game code.`);
                     setGameCodeMessage(`Required field`);
@@ -90,13 +105,18 @@ function MainMenu(stfNthngs){
           <div>
                {message ?
                <div>
-                    <p>{message}</p>
-               </div> : <div><p></p></div>}
+                    <p>{message} {messageIndex != 0 ? <span>({messageIndex})</span> : <span></span>} </p>
+               </div> 
+               :
+               <div>
+                    <p></p>
+               </div>}
                {stfNthngs.isDM === true ?
                <div>
                     <button onClick={()=>{
                          stfNthngs.changeDM(false)
                          setMessage(`Choose a game mode`);
+                         setMessageIndex(0);
                          setGameCodeMessage(``);
                     }}>Back</button>
                     <div className="table">
@@ -137,12 +157,13 @@ function MainMenu(stfNthngs){
                     <button onClick={()=>{
                          stfNthngs.changeDM(false)
                          setMessage(`Choose a game mode`);
+                         setMessageIndex(0);
                          setGameCodeMessage(``);
                     }}>Back</button>
-                    <form className="table" onSubmit={()=>setGame()}>
+                    <form className="table" onSubmit={()=>setGame(gameNameBox.current.value, gameCodeBox.current.value, charNameBox.current.value)}>
                          <div>
                               <div>
-                                   <label>Enter Game Code: {gameCodeMessage}</label>
+                                   {gameCodeMessage == ``?<label>Enter Game Code:</label> : <label>{gameCodeMessage}</label>}
                               </div>
                               <input ref={gameCodeBox}/>
                          </div>

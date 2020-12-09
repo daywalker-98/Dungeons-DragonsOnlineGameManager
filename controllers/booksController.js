@@ -59,11 +59,8 @@ module.exports = {
      },
      getMessages: function(req, res){
           db.books
-               .find(req.body)
-               .then(dbModel=>{
-                    console.log(dbModel);
-                    res.json(dbModel)
-               })
+               .findOne(req.body)
+               .then(dbModel=>res.json(dbModel))
                .catch(err=>{
                     console.log(err);
                     res.status(422).json(err)
