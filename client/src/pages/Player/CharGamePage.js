@@ -80,8 +80,28 @@ function RenderAdventure(stfNthngs){
                console.log(`Game loaded.`);
           }
           setTimeout(() => {
-               stfNthngs.retrieveMessages();  
+               stfNthngs.retrieveMessages();
+               retrieveMessages();
           }, 1000);
+     }
+
+     function retrieveMessages(i){
+          setInterval(()=>{
+               var gameId;
+               var title;
+               gameId = books._id;
+               title = books.title;
+               console.log(gameId);
+               API.getMessages(gameId, title).then(res=>{
+                    if(res.data.royalDecrees != royalDecrees){
+                         setRoyalDecrees(res.data.royalDecrees);
+                    } else {
+                         console.log(res.data.royalDecrees);
+                    }
+               }).catch(err=>{
+                    console.log(err);
+               });
+          },1000);
      }
 
      function saveNewBook(Book, title){
